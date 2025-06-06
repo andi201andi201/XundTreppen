@@ -76,6 +76,20 @@
     <option value="22HD_23HZ_2">22HD_23HZ_2</option>
     <option value="22HD_23HZ_3">22HD_23HZ_3</option>
     <option value="22HD_23HZ_4">22HD_23HZ_4</option>
+    <option value="22HD_23HZ_5">22HD_23HZ_5</option>
+    <option value="22HD_23HZ_6">22HD_23HZ_6</option>
+    <option value="23HD_1">23HD_1</option>
+    <option value="23HD_2">23HD_2</option>
+    <option value="24FZ_1">24FZ_1</option>
+    <option value="24FZ_2">24FZ_2</option>
+    <option value="24HD_1">24HD_1</option>
+    <option value="24HD_2">24HD_2</option>
+    <option value="24HZ_1">24HZ_1</option>
+    <option value="24HZ_2">24HZ_2</option>
+    <option value="24HZ_3">24HZ_3</option>
+    <option value="24HZ_4">24HZ_4</option>
+    <option value="24HZ_5">24HZ_5</option>
+    <option value="24HZ_6">24HZ_6</option>
   </select>
 
   <script>
@@ -134,10 +148,21 @@
         return;
       }
 
+      const jetzt = Date.now();
+      const letzterEintrag = parseInt(localStorage.getItem('letzterEintrag') || '0');
+      const zwanzigMinuten = 20 * 60 * 1000;
+
+      if (jetzt - letzterEintrag < zwanzigMinuten) {
+        const minutenUebrig = Math.ceil((zwanzigMinuten - (jetzt - letzterEintrag)) / 60000);
+        output.textContent = `⏳ Bitte warte noch ${minutenUebrig} Minute(n), bevor du erneut Punkte einträgst.`;
+        return;
+      }
+
       let daten = JSON.parse(localStorage.getItem('treppenChallenge') || '{}');
       daten[klasse] = (daten[klasse] || 0) + stockwerk;
 
       localStorage.setItem('treppenChallenge', JSON.stringify(daten));
+      localStorage.setItem('letzterEintrag', jetzt);
 
       output.textContent = `✔️ Klasse ${klasse} hat jetzt insgesamt ${daten[klasse]} Punkte.`;
       zeigeGesamtpunkte();
@@ -148,7 +173,7 @@
       const gesamtListe = document.getElementById('gesamtListe');
       gesamtListe.innerHTML = '';
 
-      const klassen = ['22HD_23HZ_1', '22HD_23HZ_2', '22HD_23HZ_3', '22HD_23HZ_4'];
+      const klassen = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4","22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1","24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3","24HZ_4","24HZ_5","24HZ_6"];
       klassen.forEach(klasse => {
         const punkte = daten[klasse] || 0;
         const li = document.createElement('li');
@@ -160,6 +185,7 @@
     function zuruecksetzen() {
       if (confirm("Möchtest du wirklich alle Punkte zurücksetzen?")) {
         localStorage.removeItem('treppenChallenge');
+        localStorage.removeItem('letzterEintrag');
         document.getElementById('output').textContent = "Alle Daten wurden zurückgesetzt.";
         zeigeGesamtpunkte();
       }
@@ -174,7 +200,6 @@
       }
     }
 
-    // Punktestände beim Laden anzeigen
     window.onload = zeigeGesamtpunkte;
   </script>
 </body>
