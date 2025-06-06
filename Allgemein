@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Treppen-Challenge Punkte-Tracker</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2em;
+      background-color: #f9f9f9;
+      color: #333;
+      max-width: 600px;
+      margin: auto;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    header img {
+      max-height: 120px;
+    }
+    h1 {
+      color: #2e6da4;
+      font-size: 1.8em;
+      margin-top: 0.5em;
+      text-align: center;
+    }
+    label, select, button, input {
+      display: block;
+      margin: 1em 0;
+      font-size: 1.1em;
+    }
+    button {
+      background-color: #2e6da4;
+      color: white;
+      border: none;
+      padding: 0.6em 1.2em;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #255b91;
+    }
+    #output, #admin, #gesamtpunkte {
+      margin-top: 2em;
+      font-weight: bold;
+    }
+    #admin {
+      background-color: #ffffff;
+      padding: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: none;
+    }
+    footer {
+      margin-top: 3em;
+      font-size: 0.9em;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href='https://postimg.cc/2qZmLMft' target='_blank'>
+      <img src='https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png' border='0' alt='Xund-Treppen-logo'/>
+    </a>
+  </header>
+
+  <h1>Treppen-Challenge: Punkte erfassen</h1>
+  <label for="klasse">Wähle deine Klasse:</label>
+  <select id="klasse">
+    <option value="">-- Bitte wählen --</option>
+    <option value="22HD_23HZ_1">22HD_23HZ_1</option>
+    <option value="22HD_23HZ_2">22HD_23HZ_2</option>
+    <option value="22HD_23HZ_3">22HD_23HZ_3</option>
+    <option value="22HD_23HZ_4">22HD_23HZ_4</option>
+  </select>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const stockPreset = urlParams.get('stock');
+  </script>
+
+  <label for="stockwerk">Angekommen im Stockwerk:</label>
+  <select id="stockwerk">
+    <option value="">-- Bitte wählen --</option>
+    <option value="1">1. Stock (1 Punkt)</option>
+    <option value="2">2. Stock (2 Punkte)</option>
+    <option value="3">3. Stock (3 Punkte)</option>
+    <option value="4">4. Stock (4 Punkte)</option>
+  </select>
+
+  <script>
+    if (stockPreset && ["1", "2", "3", "4"].includes(stockPreset)) {
+      const select = document.getElementById("stockwerk");
+      select.value = stockPreset;
+      select.disabled = true;
+    }
+  </script>
+
+  <button onclick="punkteSpeichern()">Punkte eintragen</button>
+  <div id="output"></div>
+
+  <div id="gesamtpunkte">
+    <h2>🏆 Aktuelle Punktestände</h2>
+    <ul id="gesamtListe"></ul>
+  </div>
+
+  <div style="margin-top:2em;">
+    <label for="adminPasswort">🔒 Admin-Passwort eingeben:</label>
+    <input type="password" id="adminPasswort" placeholder="Passwort">
+    <button onclick="zeigeAdminbereich()">Anmelden</button>
+  </div>
+
+  <div id="admin">
+    <h2>⚙️ Admin-Bereich</h2>
+    <button onclick="zuruecksetzen()" style="background-color:#d9534f;">Alle Punkte zurücksetzen</button>
+  </div>
+
+  <footer>
+    © XUND – Stufe für Stufe zu mehr Gesundheit
+  </footer>
+
+  <script>
+    function punkteSpeichern() {
+      const klasse = document.getElementById('klasse').value;
+      const stockwerk = parseInt(document.getElementById('stockwerk').value);
+      const output = document.getElementById('output');
+
+      if (!klasse || isNaN(stockwerk)) {
+        output.textContent = "Bitte wähle Klasse und Stockwerk aus.";
+        return;
+      }
+
+      let daten = JSON.parse(localStorage.getItem('treppenChallenge') || '{}');
+      daten[klasse] = (daten[klasse] || 0) + stockwerk;
+
+      localStorage.setItem('treppenChallenge', JSON.stringify(daten));
+
+      output.textContent = `✔️ Klasse ${klasse} hat jetzt insgesamt ${daten[klasse]} Punkte.`;
+      zeigeGesamtpunkte();
+    }
+
+    function zeigeGesamtpunkte() {
+      const daten = JSON.parse(localStorage.getItem('treppenChallenge') || '{}');
+      const gesamtListe = document.getElementById('gesamtListe');
+      gesamtListe.innerHTML = '';
+
+      const klassen = ['22HD_23HZ_1', '22HD_23HZ_2', '22HD_23HZ_3', '22HD_23HZ_4'];
+      klassen.forEach(klasse => {
+        const punkte = daten[klasse] || 0;
+        const li = document.createElement('li');
+        li.textContent = `${klasse}: ${punkte} Punkte`;
+        gesamtListe.appendChild(li);
+      });
+    }
+
+    function zuruecksetzen() {
+      if (confirm("Möchtest du wirklich alle Punkte zurücksetzen?")) {
+        localStorage.removeItem('treppenChallenge');
+        document.getElementById('output').textContent = "Alle Daten wurden zurückgesetzt.";
+        zeigeGesamtpunkte();
+      }
+    }
+
+    function zeigeAdminbereich() {
+      const passwort = document.getElementById('adminPasswort').value;
+      if (passwort === "Bistroboykott") {
+        document.getElementById('admin').style.display = 'block';
+      } else {
+        alert("Falsches Passwort.");
+      }
+    }
+
+    // Punktestände beim Laden anzeigen
+    window.onload = zeigeGesamtpunkte;
+  </script>
+</body>
+</html>
