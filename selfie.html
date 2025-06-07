@@ -8,18 +8,17 @@
     body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin: 0; padding: 0; }
     .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
     h1 { color:#558b2f; }
-    video, canvas { border: 2px solid #558b2f; border-radius: 4px; margin: 1em auto; display: block; }
+    video { border: 2px solid #558b2f; border-radius: 4px; margin: 1em auto; display: block; }
     button { background:#558b2f; color:#fff; border:none; padding:.5em 1em; border-radius:4px; cursor:pointer; font-size:1em; }
     button:disabled { background:#ccc; cursor:not-allowed; }
     button:hover:not(:disabled) { background:#33691e; }
     #uploadStatus { margin-top: .5em; font-weight: bold; }
     #selfieGallery img { width: 100px; margin:.5em; border:2px solid #00796b; border-radius:4px; cursor: pointer; }
-    a.back { color:#558b2f; text-decoration:none; display: inline-block; margin-bottom:1em; }
+    a.back { color:#558b2f; text-decoration:none; display:inline-block; margin-bottom:1em; }
     a.back:hover { text-decoration:underline; }
     /* Lightbox */
     #lightboxOverlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:2000; }
     #lightboxOverlay img { max-width:90%; max-height:90%; border:4px solid #fff; border-radius:4px; }
-    #lightboxOverlay button { position:absolute; top:20px; right:20px; background:#333; color:#fff; border:none; padding:.5em; border-radius:50%; font-size:1.2em; cursor:pointer; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -29,9 +28,9 @@
     <h1>Selfie-Station</h1>
     <a href="index.html" class="back">« Zurück zur Challenge</a>
 
+    <!-- Nur Video und Button, kein Canvas-Feld mehr -->
     <video id="video" width="280" height="210" autoplay></video>
     <button id="snapBtn">Selfie machen</button>
-    <canvas id="canvas" width="280" height="210" style="display:none;"></canvas>
     <div id="uploadStatus"></div>
 
     <h2>Alle Selfies heute</h2>
@@ -39,8 +38,7 @@
   </div>
 
   <!-- Lightbox Overlay -->
-  <div id="lightboxOverlay" onclick="hideLightbox()" style="display:flex;">
-    <button onclick="hideLightbox()">×</button>
+  <div id="lightboxOverlay" onclick="hideLightbox()">
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
 
@@ -57,29 +55,30 @@
     });
     const db = firebase.database();
 
-    // Kamera & Canvas Setup
+    // Kamera-Setup
     const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
     const snapBtn = document.getElementById('snapBtn');
     snapBtn.disabled = true;
 
-    navigator.mediaDevices.getUserMedia({ video:true })
+    navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
         video.onloadedmetadata = () => {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
           video.play();
           snapBtn.disabled = false;
         };
       })
       .catch(err => console.error('Kamera-Fehler:', err));
 
-    // Selfie aufnehmen & Imgur Upload
+    // Selfie schießen & Imgur-Upload
     snapBtn.onclick = () => {
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => {
+      // Zeichne direkt ins Video-Element statt Canvas
+      const offscreen = document.createElement('canvas');
+      offscreen.width = video.videoWidth;
+      offscreen.height = video.videoHeight;
+      offscreen.getContext('2d').drawImage(video, 0, 0);
+
+      offscreen.toBlob(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = reader.result.split(',')[1];
@@ -95,9 +94,9 @@
           .then(res => res.json())
           .then(json => {
             if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
-            const { link, deletehash } = json.data;
+            const url = json.data.link;
             const today = new Date().toISOString().slice(0,10);
-            return db.ref(`selfies/${today}`).push({ link, deletehash });
+            return db.ref(`selfies/${today}`).push(url);
           })
           .then(() => {
             document.getElementById('uploadStatus').textContent = '✅ Hochgeladen via Imgur';
@@ -112,7 +111,7 @@
       }, 'image/jpeg', 0.8);
     };
 
-    // Galerie laden
+    // Galerie laden (ohne Lösch-Funktion)
     function loadGallery() {
       const gallery = document.getElementById('selfieGallery');
       gallery.innerHTML = '';
@@ -120,36 +119,16 @@
       db.ref(`selfies/${today}`).orderByKey().once('value')
         .then(snap => {
           snap.forEach(child => {
-            const { link, deletehash } = child.val();
-            const key = child.key;
+            const url = child.val();
             const img = document.createElement('img');
-            img.src = link;
-            img.title = 'Klicke zum Löschen';
-            img.onclick = () => showLightbox(link);
-            // Kontextmenü (Rechtsklick) löscht
-            img.oncontextmenu = e => {
-              e.preventDefault();
-              deleteSelfie(key, deletehash);
-            };
+            img.src = url;
+            img.onclick = () => showLightbox(url);
             gallery.prepend(img);
           });
         });
     }
 
-    // Selfie löschen (DB + Imgur)
-    function deleteSelfie(dbKey, deletehash) {
-      const today = new Date().toISOString().slice(0,10);
-      // Entferne aus DB
-      db.ref(`selfies/${today}/${dbKey}`).remove();
-      // Entferne bei Imgur
-      fetch(`https://api.imgur.com/3/image/${deletehash}`, {
-        method: 'DELETE',
-        headers: { Authorization: 'Client-ID dfebab139250adf' }
-      });
-      loadGallery();
-    }
-
-    // Lightbox
+    // Lightbox öffnen / schließen
     function showLightbox(src) {
       const overlay = document.getElementById('lightboxOverlay');
       document.getElementById('lightboxImage').src = src;
@@ -159,9 +138,10 @@
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
-    // Init
+    // initial Galerie aufbauen
     loadGallery();
   </script>
 </body>
 </html>
+
 
