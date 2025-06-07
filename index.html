@@ -2,100 +2,58 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Treppen-Challenge Punkte-Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treppen-Challenge</title>
   <style>
+    /* ... dein bestehendes CSS hier ... */
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       padding: 2em;
-      background-color: #f9f9f9;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
       color: #333;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    header img { max-height: 100px; display: block; margin: auto; }
+    h1 { color: #00796b; text-align: center; }
+    select, button, input { display: block; margin: 1em auto; font-size: 1.1em; padding: 0.4em; }
+    button { background-color: #00796b; color: white; border: none; border-radius: 4px; }
+    button:hover { background-color: #004d40; }
+    #output, #statistik, #countdown, #leaderboard, #admin { text-align: center; margin-top: 1em; }
+    .animate-check { animation: bounce 0.6s; display: inline-block; }
+    @keyframes bounce { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    .leader { font-weight: bold; color: gold; animation: glow 1s infinite alternate; }
+    @keyframes glow { from { text-shadow: 0 0 10px gold; } to { text-shadow: 0 0 20px orange; } }
+    #gewinnPopup {
+      display:none;
+      position:fixed;
+      top:40%; left:50%;
+      transform:translate(-50%,-50%);
+      background:#fff;
+      border:3px solid #00796b;
+      border-radius:12px;
+      padding:1em 2em;
+      font-size:1.4em;
+      box-shadow:0 0 20px rgba(0,0,0,0.2);
+      z-index:999;
     }
-    header img {
-      max-height: 120px;
-    }
-    h1 {
-      color: #2e6da4;
-      font-size: 1.8em;
-      margin-top: 0.5em;
-      text-align: center;
-    }
-    label, select, button, input {
-      display: block;
-      margin: 1em 0;
-      font-size: 1.1em;
-    }
-    button {
-      background-color: #2e6da4;
-      color: white;
-      border: none;
-      padding: 0.6em 1.2em;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    button:hover {
-      background-color: #255b91;
-    }
-    #output, #admin, #gesamtpunkte {
-      margin-top: 2em;
-      font-weight: bold;
-    }
-    #admin {
-      background-color: #ffffff;
-      padding: 1em;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      display: none;
-    }
-    footer {
-      margin-top: 3em;
-      font-size: 0.9em;
-      color: #777;
-      text-align: center;
-    }
+    #gluecksrad { display: none; text-align: center; margin-top: 2em; }
   </style>
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <header>
-    <a href='https://postimg.cc/2qZmLMft' target='_blank'>
-      <img src='https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png' border='0' alt='Xund-Treppen-logo'/>
-    </a>
+    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo">
   </header>
+  <h1>Treppen-Challenge</h1>
+  <div id="countdown"></div>
 
-  <h1>Treppen-Challenge: Punkte erfassen</h1>
   <label for="klasse">Wähle deine Klasse:</label>
-  <select id="klasse">
-    <option value="">-- Bitte wählen --</option>
-    <option value="22HD_23HZ_1">22HD_23HZ_1</option>
-    <option value="22HD_23HZ_2">22HD_23HZ_2</option>
-    <option value="22HD_23HZ_3">22HD_23HZ_3</option>
-    <option value="22HD_23HZ_4">22HD_23HZ_4</option>
-    <option value="22HD_23HZ_5">22HD_23HZ_5</option>
-    <option value="22HD_23HZ_6">22HD_23HZ_6</option>
-    <option value="23HD_1">23HD_1</option>
-    <option value="23HD_2">23HD_2</option>
-    <option value="24FZ_1">24FZ_1</option>
-    <option value="24FZ_2">24FZ_2</option>
-    <option value="24HD_1">24HD_1</option>
-    <option value="24HD_2">24HD_2</option>
-    <option value="24HZ_1">24HZ_1</option>
-    <option value="24HZ_2">24HZ_2</option>
-    <option value="24HZ_3">24HZ_3</option>
-    <option value="24HZ_4">24HZ_4</option>
-    <option value="24HZ_5">24HZ_5</option>
-    <option value="24HZ_6">24HZ_6</option>
-  </select>
-
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const stockPreset = urlParams.get('stock');
-  </script>
+  <select id="klasse"></select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
   <select id="stockwerk">
@@ -105,102 +63,195 @@
     <option value="3">3. Stock (3 Punkte)</option>
     <option value="4">4. Stock (4 Punkte)</option>
   </select>
-
-  <script>
-    if (stockPreset && ["1", "2", "3", "4"].includes(stockPreset)) {
-      const select = document.getElementById("stockwerk");
-      select.value = stockPreset;
-      select.disabled = true;
-    }
-  </script>
-
   <button onclick="punkteSpeichern()">Punkte eintragen</button>
   <div id="output"></div>
+  <div id="leaderboard"></div>
+  <div id="statistik"></div>
 
-  <div id="gesamtpunkte">
-    <h2>🏆 Aktuelle Punktestände</h2>
-    <ul id="gesamtListe"></ul>
-  </div>
-
-  <div style="margin-top:2em;">
-    <label for="adminPasswort">🔒 Admin-Passwort eingeben:</label>
-    <input type="password" id="adminPasswort" placeholder="Passwort">
-    <button onclick="zeigeAdminbereich()">Anmelden</button>
+  <div id="gluecksrad">
+    <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
+    <div style="position:relative;width:260px;height:260px;margin:0 auto;">
+      <svg id="svgRad" width="250" height="250" viewBox="0 0 250 250" style="transform:rotate(0deg);transition:transform 4s ease-out;">
+        <g id="radSegmente"></g>
+        <circle cx="125" cy="125" r="120" fill="none" stroke="#333" stroke-width="4"/>
+      </svg>
+      <div id="zeiger" style="width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-bottom:20px solid #333;position:absolute;top:-20px;left:50%;transform:translateX(-50%);"></div>
+    </div>
+    <button onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
+    <div id="gewinnPopup"></div>
   </div>
 
   <div id="admin">
-    <h2>⚙️ Admin-Bereich</h2>
-    <button onclick="zuruecksetzen()" style="background-color:#d9534f;">Alle Punkte zurücksetzen</button>
+    <h3>🔐 Adminbereich</h3>
+    <input type="password" id="adminpass" placeholder="Passwort">
+    <button onclick="adminLogin()">Einloggen</button>
+    <div id="adminControls" style="display:none;">
+      <button onclick="datenZuruecksetzen()">Punkte zurücksetzen</button>
+    </div>
   </div>
 
-  <footer>
-    © XUND – Stufe für Stufe zu mehr Gesundheit
-  </footer>
-
+  <!-- Dein gesamtes JS ans Ende verschoben -->
   <script>
+    // Firebase-Konfiguration & Init
+    const firebaseConfig = {
+      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+      authDomain: "treppenchallenge2025.firebaseapp.com",
+      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "treppenchallenge2025",
+      storageBucket: "treppenchallenge2025.appspot.com",
+      messagingSenderId: "45698338369",
+      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let daten = {}, _lastLeader = null, aktuelleDrehung = 0;
+
+    // Countdown
+    const enddatum = new Date("2025-06-18T12:00:00").getTime();
+    setInterval(() => {
+      const jetzt = Date.now(), diff = enddatum - jetzt;
+      if (diff < 0) {
+        document.getElementById("countdown").textContent = "🏁 Challenge beendet!";
+        return;
+      }
+      const tage = Math.floor(diff / (1000*60*60*24));
+      const stunden = new Date(diff).getUTCHours();
+      const minuten = new Date(diff).getUTCMinutes();
+      document.getElementById("countdown").textContent =
+        `⏳ Noch ${tage} Tage, ${stunden} Stunden, ${minuten} Minuten`;
+    }, 1000);
+
+    // Punkte eintragen
     function punkteSpeichern() {
       const klasse = document.getElementById('klasse').value;
       const stockwerk = parseInt(document.getElementById('stockwerk').value);
       const output = document.getElementById('output');
-
       if (!klasse || isNaN(stockwerk)) {
-        output.textContent = "Bitte wähle Klasse und Stockwerk aus.";
+        output.textContent = "Bitte alles auswählen.";
         return;
       }
-
-      const jetzt = Date.now();
-      const letzterEintrag = parseInt(localStorage.getItem('letzterEintrag') || '0');
-      const zwanzigMinuten = 20 * 60 * 1000;
-
-      if (jetzt - letzterEintrag < zwanzigMinuten) {
-        const minutenUebrig = Math.ceil((zwanzigMinuten - (jetzt - letzterEintrag)) / 60000);
-        output.textContent = `⏳ Bitte warte noch ${minutenUebrig} Minute(n), bevor du erneut Punkte einträgst.`;
+      const admin = localStorage.getItem('admin')==='true';
+      const lastTime = +localStorage.getItem('lastTime')||0;
+      const now = Date.now();
+      if (!admin && now-lastTime<1200000) {
+        output.textContent = "⏳ Bitte warte 20 Minuten.";
         return;
       }
-
-      let daten = JSON.parse(localStorage.getItem('treppenChallenge') || '{}');
-      daten[klasse] = (daten[klasse] || 0) + stockwerk;
-
-      localStorage.setItem('treppenChallenge', JSON.stringify(daten));
-      localStorage.setItem('letzterEintrag', jetzt);
-
-      output.textContent = `✔️ Klasse ${klasse} hat jetzt insgesamt ${daten[klasse]} Punkte.`;
-      zeigeGesamtpunkte();
+      localStorage.setItem('lastTime', now);
+      const alt = daten[klasse]||0, neu = alt+stockwerk;
+      db.ref('punkte/'+klasse).set(neu);
+      output.innerHTML = `<span class='animate-check'>✅ Klasse ${klasse} hat jetzt ${neu} Punkte.</span>`;
+      let count = +localStorage.getItem('eintraege')||0;
+      count++; localStorage.setItem('eintraege', count);
+      if ([10,50,100,500,1000].includes(count)) {
+        document.getElementById('gluecksrad').style.display = 'block';
+      }
     }
 
-    function zeigeGesamtpunkte() {
-      const daten = JSON.parse(localStorage.getItem('treppenChallenge') || '{}');
-      const gesamtListe = document.getElementById('gesamtListe');
-      gesamtListe.innerHTML = '';
+    // Rangliste & Statistik
+    function ranglisteAktualisieren() {
+      const sortiert = Object.entries(daten).sort((a,b)=>b[1]-a[1]);
+      let html = '<h3>🏆 Rangliste</h3>';
+      sortiert.forEach(([k,v],i) => {
+        const pokal = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
+        html += `<p class='${i==0?'leader':''}'>${pokal} ${k}: ${v} Punkte</p>`;
+      });
+      document.getElementById('leaderboard').innerHTML = html;
+    }
+    function statistikAktualisieren() {
+      const total = Object.values(daten).reduce((a,b)=>a+b,0);
+      const steps = total*20, cal=(total*0.17).toFixed(1), hm=(total*3.3).toFixed(1);
+      document.getElementById('statistik').innerHTML =
+        `🚶‍♂️ ${total} Stockwerke → ${steps} Schritte | 🔥 ${cal} kcal | 🗻 ${hm} Höhenmeter`;
+    }
 
-      const klassen = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4","22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1","24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3","24HZ_4","24HZ_5","24HZ_6"];
-      klassen.forEach(klasse => {
-        const punkte = daten[klasse] || 0;
-        const li = document.createElement('li');
-        li.textContent = `${klasse}: ${punkte} Punkte`;
-        gesamtListe.appendChild(li);
+    // Confetti
+    function confetti() {
+      const d=document.createElement('div');
+      d.textContent="🎉🎊🏅";
+      Object.assign(d.style,{position:"fixed",top:"20%",left:"50%",transform:"translateX(-50%)",fontSize:"2em",zIndex:1000});
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(),3000);
+    }
+
+    // Glücksrad
+    function zeichneSVGSegmente() {
+      const g=document.getElementById('radSegmente');
+      const seg=[1,5,10,50], farben=['#f44336','#ffeb3b','#4caf50','#2196f3'];
+      const cx=125,cy=125,r=120;
+      seg.forEach((w,i)=>{
+        const start=(360/seg.length)*i, end=start+(360/seg.length);
+        const x1=cx+r*Math.cos(Math.PI/180*start), y1=cy+r*Math.sin(Math.PI/180*start);
+        const x2=cx+r*Math.cos(Math.PI/180*end),   y2=cy+r*Math.sin(Math.PI/180*end);
+        const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+        p.setAttribute("d",`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+        p.setAttribute("fill",farben[i]); g.appendChild(p);
+        const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+        const mid=(start+end)/2;
+        t.setAttribute("x",cx+70*Math.cos(Math.PI/180*mid));
+        t.setAttribute("y",cy+70*Math.sin(Math.PI/180*mid));
+        t.setAttribute("text-anchor","middle");
+        t.setAttribute("alignment-baseline","middle");
+        t.setAttribute("font-size","16");
+        t.textContent=w;
+        g.appendChild(t);
       });
     }
+    function dreheGluecksradSVG() {
+      const klasse=document.getElementById('klasse').value;
+      if(!klasse) return;
+      const seg=[1,5,10,50], idx=Math.floor(Math.random()*seg.length), gew=seg[idx];
+      const basis=360/seg.length;
+      aktuelleDrehung+=360*5+idx*basis+Math.random()*basis;
+      document.getElementById('svgRad').style.transform=`rotate(${aktuelleDrehung}deg)`;
+      setTimeout(()=>{
+        const alt=daten[klasse]||0, neu=alt+gew;
+        db.ref('punkte/'+klasse).set(neu);
+        document.getElementById('gluecksrad').style.display='none';
+        const pop=document.getElementById('gewinnPopup');
+        pop.innerHTML=`🎉 ${gew} Bonuspunkte für <strong>${klasse}</strong>!`;
+        pop.style.display='block';
+        setTimeout(()=>pop.style.display='none',4000);
+      },4200);
+    }
 
-    function zuruecksetzen() {
-      if (confirm("Möchtest du wirklich alle Punkte zurücksetzen?")) {
-        localStorage.removeItem('treppenChallenge');
-        localStorage.removeItem('letzterEintrag');
-        document.getElementById('output').textContent = "Alle Daten wurden zurückgesetzt.";
-        zeigeGesamtpunkte();
+    // Admin
+    function adminLogin() {
+      if(document.getElementById('adminpass').value==='Bistroboykott'){
+        localStorage.setItem('admin','true');
+        document.getElementById('adminControls').style.display='block';
+      } else alert('Falsches Passwort');
+    }
+    function datenZuruecksetzen() {
+      if(confirm('Willst du wirklich alle Punkte zurücksetzen?')) {
+        db.ref('punkte').remove();
+        localStorage.removeItem('eintraege');
+        localStorage.removeItem('lastTime');
+        alert('Punkte zurückgesetzt.');
       }
     }
 
-    function zeigeAdminbereich() {
-      const passwort = document.getElementById('adminPasswort').value;
-      if (passwort === "Bistroboykott") {
-        document.getElementById('admin').style.display = 'block';
-      } else {
-        alert("Falsches Passwort.");
-      }
-    }
+    // DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', ()=>{
+      // Klassen dropdown
+      const kListe = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4","22HD_23HZ_5","22HD_23HZ_6",
+                      "23HD_1","23HD_2","24FZ_1","24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
+                      "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"];
+      const sel=document.getElementById('klasse');
+      kListe.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);});
 
-    window.onload = zeigeGesamtpunkte;
+      zeichneSVGSegmente();
+
+      // Firebase listener
+      db.ref('punkte').on('value', snap=>{
+        daten=snap.val()||{};
+        ranglisteAktualisieren();
+        statistikAktualisieren();
+        const lead=Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
+        if(lead && lead!==_lastLeader){ _lastLeader=lead; confetti(); }
+      });
+    });
   </script>
 </body>
 </html>
