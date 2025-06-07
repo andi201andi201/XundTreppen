@@ -5,50 +5,131 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Selfie-Station</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin: 0; padding: 0; }
-    .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    h1 { color:#558b2f; }
-    video { border: 2px solid #558b2f; border-radius: 4px; margin: 1em auto; display: block; }
-    button { background:#558b2f; color:#fff; border:none; padding:.5em 1em; border-radius:4px; cursor:pointer; font-size:1em; }
-    button:disabled { background:#ccc; cursor:not-allowed; }
-    button:hover:not(:disabled) { background:#33691e; }
-    #uploadStatus { margin-top: .5em; font-weight: bold; }
-    #selfieGallery img { width: 100px; margin:.5em; border:2px solid #00796b; border-radius:4px; cursor: pointer; }
-    a.back { color:#558b2f; text-decoration:none; display:inline-block; margin-bottom:1em; }
-    a.back:hover { text-decoration:underline; }
-    /* Lightbox */
+    /* Grundlayout */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4c3;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 2em auto;
+      background: #fff;
+      border: 3px solid #558b2f;
+      border-radius: 8px;
+      padding: 1em;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color:#558b2f;
+    }
+    /* Video-Vorschau */
+    video {
+      border: 2px solid #558b2f;
+      border-radius: 4px;
+      margin: 1em auto;
+      display: block;
+    }
+    /* Button zum Auslösen */
+    button {
+      background:#558b2f;
+      color:#fff;
+      border:none;
+      padding:.5em 1em;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:1em;
+    }
+    button:disabled {
+      background:#ccc;
+      cursor:not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background:#33691e;
+    }
+    /* Statusanzeige */
+    #uploadStatus {
+      margin-top: .5em;
+      font-weight: bold;
+    }
+    /* Galerie-Vorschaubilder */
+    #selfieGallery img {
+      width: 100px;
+      margin:.5em;
+      border:2px solid #00796b;
+      border-radius:4px;
+      cursor: pointer;
+    }
+    /* Zurück-Link */
+    a.back {
+      color:#558b2f;
+      text-decoration:none;
+      display:inline-block;
+      margin-bottom:1em;
+    }
+    a.back:hover {
+      text-decoration:underline;
+    }
+    /* Lightbox für Großansicht */
     #lightboxOverlay {
       display:none;
-      position:fixed; top:0; left:0;
+      position:fixed;
+      top:0; left:0;
       width:100%; height:100%;
       background:rgba(0,0,0,0.8);
-      justify-content:center; align-items:center;
+      justify-content:center;
+      align-items:center;
       z-index:2000;
     }
-    #lightboxOverlay img { max-width:90%; max-height:90%; border:4px solid #fff; border-radius:4px; }
+    #lightboxOverlay img {
+      max-width:90%;
+      max-height:90%;
+      border:4px solid #fff;
+      border-radius:4px;
+    }
   </style>
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
+
   <div class="container">
+    <!-- Überschrift und Zurück-Link -->
     <h1>Selfie-Station</h1>
     <a href="index.html" class="back">« Zurück zur Challenge</a>
 
-    <video id="video" width="280" height="210" autoplay muted playsinline></video>
+    <!-- Live-Video von der Kamera -->
+    <video id="video"
+           width="280" height="210"
+           autoplay
+           muted       <!-- Verhindert Audio-Block -->
+           playsinline><!-- iOS Inline-Mode -->
+    </video>
+
+    <!-- Button zum Selfie-Auslösen -->
     <button id="snapBtn">Selfie machen</button>
+
+    <!-- Statusmeldungen (Upload, Fehler, etc.) -->
     <div id="uploadStatus"></div>
 
+    <!-- Galerie aller heutigen Selfies -->
     <h2>Alle Selfies heute</h2>
     <div id="selfieGallery"></div>
   </div>
 
+  <!-- Lightbox-Overlay für Großansicht -->
   <div id="lightboxOverlay" onclick="hideLightbox()">
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
 
   <script>
-    // Firebase initialisieren
+    // -----------------------------
+    // 1) Firebase initialisieren
+    // -----------------------------
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
       authDomain: "treppenchallenge2025.firebaseapp.com",
@@ -60,33 +141,44 @@
     });
     const db = firebase.database();
 
+    // -----------------------------
+    // 2) Kamerastream einrichten
+    // -----------------------------
     const video   = document.getElementById('video');
     const snapBtn = document.getElementById('snapBtn');
 
-    // Button sperren bis Video bereit
+    // Button zunächst deaktivieren, bis Stream bereit ist
     snapBtn.disabled = true;
 
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
         video.onloadedmetadata = () => {
+          // Sobald Bilddaten da sind: Video starten + Button aktivieren
           video.play();
           snapBtn.disabled = false;
         };
       })
       .catch(err => console.error('Kamera-Fehler:', err));
 
+    // ----------------------------------------
+    // 3) Selfie aufnehmen & Imgur-Upload
+    // ----------------------------------------
     snapBtn.onclick = () => {
+      // Offscreen-Canvas erzeugen und Bild malen
       const offscreen = document.createElement('canvas');
       offscreen.width  = video.videoWidth;
       offscreen.height = video.videoHeight;
       offscreen.getContext('2d').drawImage(video, 0, 0);
 
+      // Canvas als Blob (JPEG) auslesen
       offscreen.toBlob(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          const base64 = reader.result.split(',')[1];
+          const base64 = reader.result.split(',')[1];  // reines Bild-Datenfeld
           document.getElementById('uploadStatus').textContent = '⏳ Upload zu Imgur…';
+
+          // Imgur-API-Call
           fetch('https://api.imgur.com/3/image', {
             method: 'POST',
             headers: {
@@ -97,14 +189,18 @@
           })
           .then(res => res.json())
           .then(json => {
-            if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
+            if (!json.success) {
+              throw new Error('Imgur-Upload fehlgeschlagen');
+            }
+            // URL aus Imgur-Antwort
             const url = json.data.link;
             const today = new Date().toISOString().slice(0,10);
+            // in Realtime-DB speichern
             return db.ref(`selfies/${today}`).push(url);
           })
           .then(() => {
             document.getElementById('uploadStatus').textContent = '✅ Hochgeladen via Imgur';
-            loadGallery();
+            loadGallery();  // Galerie aktualisieren
           })
           .catch(err => {
             console.error('Upload-Fehler:', err);
@@ -115,11 +211,17 @@
       }, 'image/jpeg', 0.8);
     };
 
+    // -----------------------------
+    // 4) Galerie laden
+    // -----------------------------
     function loadGallery() {
       const gallery = document.getElementById('selfieGallery');
       gallery.innerHTML = '';
       const today = new Date().toISOString().slice(0,10);
-      db.ref(`selfies/${today}`).orderByKey().once('value')
+
+      db.ref(`selfies/${today}`)
+        .orderByKey()
+        .once('value')
         .then(snap => {
           snap.forEach(child => {
             const url = child.val();
@@ -131,18 +233,20 @@
         });
     }
 
+    // -----------------------------
+    // 5) Lightbox-Funktionen
+    // -----------------------------
     function showLightbox(src) {
       const overlay = document.getElementById('lightboxOverlay');
       document.getElementById('lightboxImage').src = src;
       overlay.style.display = 'flex';
     }
-
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
+    // Erste Anzeige der Galerie starten
     loadGallery();
   </script>
 </body>
 </html>
-
