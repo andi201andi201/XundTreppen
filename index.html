@@ -166,7 +166,9 @@
   </header>
 
   <h1>Treppen-Challenge</h1>
-
+<div id="orakel" style="text-align:center; margin:1em auto; padding:10px; border:2px dashed #ff9800; border-radius:8px; background:#fff8e1; color:#795548;">
+  🔮 Lade das Treppen-Orakel...
+</div>
   <div id="countQuizBar">
     <div id="countdown">⏳ Lade...</div>
     <a href="quiz.html" class="quiz-link">🚀 Zum täglichen Quiz</a>
@@ -475,8 +477,27 @@
         alert('Punkte zurückgesetzt.');
       }
     }
+document.addEventListener('DOMContentLoaded', () => {
+  const sprueche = [
+    "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃",
+    "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈",
+    "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪",
+    "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨",
+    "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄",
+    "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️",
+    "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋",
+    "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀",
+    "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬",
+    "Heute gelingt dir jeder Schritt besonders elegant! 🕺"
+  ];
+
+  const orakelDiv = document.getElementById('orakel');
+  const zufallSpruch = sprueche[Math.floor(Math.random() * sprueche.length)];
+
+  setTimeout(() => {
+    orakelDiv.innerHTML = `🔮 ${zufallSpruch}`;
+  }, 1000);
+});
   </script>
 </body>
 </html>
-
-
