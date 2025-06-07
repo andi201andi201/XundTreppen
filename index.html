@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
   <style>
     body {
@@ -16,28 +16,39 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     header img {
-      max-height: 100px; display: block; margin: auto;
+      max-height: 100px;
+      display: block;
+      margin: auto;
     }
     h1 {
-      color: #00796b; text-align: center;
+      color: #00796b;
+      text-align: center;
     }
     select, button, input {
-      display: block; margin: 1em auto;
-      font-size: 1.1em; padding: 0.4em;
+      display: block;
+      margin: 1em auto;
+      font-size: 1.1em;
+      padding: 0.4em;
     }
     button {
-      background-color: #00796b; color: white;
-      border: none; border-radius: 4px; cursor: pointer;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
     button:hover { background-color: #004d40; }
     button:disabled {
-      background: #ccc !important; cursor: not-allowed !important;
+      background: #ccc !important;
+      cursor: not-allowed !important;
     }
-    #output, #statistik, #countdown, #leaderboard, #admin {
-      text-align: center; margin-top: 1em;
+    #output, #statistik, #countdown, #leaderboard, #dailyLeaderboard, #admin {
+      text-align: center;
+      margin-top: 1em;
     }
     .animate-check {
-      animation: bounce 0.6s; display: inline-block;
+      animation: bounce 0.6s;
+      display: inline-block;
     }
     @keyframes bounce {
       0% { transform: scale(1); }
@@ -45,27 +56,33 @@
       100% { transform: scale(1); }
     }
     .leader {
-      font-weight: bold; color: gold;
+      font-weight: bold;
+      color: gold;
       animation: glow 1s infinite alternate;
     }
     @keyframes glow {
       from { text-shadow: 0 0 10px gold; }
       to   { text-shadow: 0 0 20px orange; }
     }
-    /* Rad-Container */
+    /* Wheel container */
     #svgContainer {
-      position: relative; width: 280px; height: 280px;
+      position: relative;
+      width: 280px; height: 280px;
       margin: 2em auto; padding: 5px;
-      border: 5px solid #00796b; border-radius: 50%;
+      border: 5px solid #00796b;
+      border-radius: 50%;
       box-sizing: content-box;
     }
-    /* Pfeil oben */
+    /* Pointer */
     #zeiger {
-      position: absolute; top: -30px; left: 50%;
+      position: absolute;
+      top: -30px; left: 50%;
       transform: translateX(-50%);
+      width: 0; height: 0;
       border-left: 20px solid transparent;
       border-right:20px solid transparent;
-      border-top: 30px solid #333; z-index: 2;
+      border-top: 30px solid #333;
+      z-index: 2;
     }
     /* Wheel */
     #svgRad {
@@ -78,11 +95,15 @@
     }
     /* Popup */
     #gewinnPopup {
-      display: none; position: fixed;
-      top:50%; left:50%; transform:translate(-50%,-50%);
+      display: none;
+      position: fixed;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
       background:#fff; border:3px solid #00796b;
-      border-radius:12px; padding:1em 2em; text-align:center;
-      box-shadow:0 0 20px rgba(0,0,0,0.2); z-index:999;
+      border-radius:12px; padding:1em 2em;
+      font-size:1.4em; text-align:center;
+      box-shadow:0 0 20px rgba(0,0,0,0.2);
+      z-index:999;
     }
     #gewinnPopup button {
       margin-top:1em; padding:.5em 1.5em;
@@ -90,14 +111,28 @@
       border-radius:4px; cursor:pointer;
     }
     #gluecksrad {
-      display: none; text-align:center; margin-top:2em;
+      display:none; text-align:center; margin-top:2em;
+    }
+    /* Tagesbestenliste */
+    #dailyLeaderboard {
+      border-top:2px dashed #00796b;
+      padding-top:1em;
+    }
+    #dailyLeaderboard h3 {
+      color:#00796b;
+      margin-bottom:.5em;
+    }
+    #dailyLeaderboard p {
+      margin: .2em 0;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <header><img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo"></header>
+  <header>
+    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo">
+  </header>
   <h1>Treppen-Challenge</h1>
   <div id="countdown"></div>
 
@@ -118,6 +153,7 @@
 
   <div id="output"></div>
   <div id="leaderboard"></div>
+  <div id="dailyLeaderboard"></div>
   <div id="statistik"></div>
 
   <div id="gluecksrad">
@@ -146,7 +182,7 @@
   </div>
 
   <script>
-    // --- Firebase init ---
+    // Firebase initialisieren
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
       authDomain: "treppenchallenge2025.firebaseapp.com",
@@ -161,6 +197,7 @@
     let daten = {}, _lastLeader = null,
         aktuelleDrehung = 0, currentSpinClass = null;
 
+    // Farben & Segmente
     const colors = [
       '#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad',
       '#d35400','#16a085','#c0392b','#2c3e50','#7f8c8d',
@@ -178,15 +215,20 @@
       [segments[i], segments[j]] = [segments[j], segments[i]];
     }
     const comments = {
-      1: "💪 Ein Punkt ist besser als kein Punkt!",
-      2: "🔁 Weiter so – jeder Schritt zählt!",
-      5: "🚶‍♂️ Das summiert sich – dranbleiben!",
-      10:"🎯 Stark! 10 Bonuspunkte geholt!",
-      25:"🏅 WOW – 25 Punkte für dich!",
-      50:"👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
+      1:  "💪 Ein Punkt ist besser als kein Punkt!",
+      2:  "🔁 Weiter so – jeder Schritt zählt!",
+      5:  "🚶‍♂️ Das summiert sich – dranbleiben!",
+      10: "🎯 Stark! 10 Bonuspunkte geholt!",
+      25: "🏅 WOW – 25 Punkte für dich!",
+      50: "👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
     };
 
-    // --- Countdown ---
+    // Hilfsfunktion: Heute als YYYY-MM-DD
+    function getToday() {
+      return new Date().toISOString().slice(0,10);
+    }
+
+    // Countdown
     const enddatum = new Date("2025-06-18T12:00:00").getTime();
     setInterval(() => {
       const now = Date.now(), diff = enddatum - now;
@@ -201,7 +243,6 @@
         `⏳ Noch ${tage} Tage, ${stunden} Stunden, ${minuten} Minuten`;
     }, 1000);
 
-    // --- DOM ready ---
     document.addEventListener('DOMContentLoaded', () => {
       // Klassen-Dropdown
       const klassen = [
@@ -211,7 +252,7 @@
         "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"
       ];
       const selK = document.getElementById('klasse');
-      klassen.forEach(k=>{
+      klassen.forEach(k => {
         const o = document.createElement('option');
         o.value = k; o.textContent = k;
         selK.appendChild(o);
@@ -220,63 +261,69 @@
       // Wheel zeichnen
       zeichneSVGSegmente();
 
-      // 20-Min-Lock initial und stock param
-      const isAdmin = localStorage.getItem('admin')==='true';
-      const last = +localStorage.getItem('lastTime')||0;
+      // 20-Min Lock initial & stock param
+      const isAdmin = localStorage.getItem('admin') === 'true';
+      const last = +localStorage.getItem('lastTime') || 0;
       const now = Date.now();
-      const enterBtn = document.getElementById('enterBtn');
-      // Lock Button
+      const btn = document.getElementById('enterBtn');
       if (!isAdmin && now - last < 1_200_000) {
-        enterBtn.disabled = true;
-        setTimeout(() => enterBtn.disabled = false, 1_200_000 - (now - last));
+        btn.disabled = true;
+        setTimeout(() => btn.disabled = false, 1_200_000 - (now - last));
       }
-      // URL-Param stock blockieren
+      // URL stock param
       const params = new URLSearchParams(window.location.search);
-      const stockParam = params.get('stock');
-      if (['1','2','3','4'].includes(stockParam)) {
+      const sp = params.get('stock');
+      if (['1','2','3','4'].includes(sp)) {
         const selS = document.getElementById('stockwerk');
-        selS.value = stockParam;
-        selS.disabled = true;
+        selS.value = sp; selS.disabled = true;
       }
 
-      // Firebase Listener
+      // Main leaderboard listener
       db.ref('punkte').on('value', snap => {
-        daten = snap.val()||{};
+        daten = snap.val() || {};
         ranglisteAktualisieren();
         statistikAktualisieren();
         const lead = Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
         if (_lastLeader === null) _lastLeader = lead;
-        else if (lead && lead!==_lastLeader) {
-          _lastLeader = lead;
-          confetti();
+        else if (lead && lead !== _lastLeader) {
+          _lastLeader = lead; confetti();
         }
+      });
+
+      // Daily listener
+      const today = getToday();
+      db.ref('daily/' + today).on('value', snap => {
+        const dailyData = snap.val() || {};
+        renderDailyLeaderboard(dailyData);
       });
     });
 
-    // --- Punkte eintragen ---
     function punkteSpeichern() {
       const k = document.getElementById('klasse').value;
       const s = parseInt(document.getElementById('stockwerk').value);
       const out = document.getElementById('output');
       if (!k || isNaN(s)) {
-        out.textContent = "Bitte alles auswählen.";
-        return;
+        out.textContent = "Bitte alles auswählen."; return;
       }
       const isAdmin = localStorage.getItem('admin')==='true';
       const last = +localStorage.getItem('lastTime')||0;
       const now = Date.now();
       const btn = document.getElementById('enterBtn');
       if (!isAdmin && now - last < 1_200_000) {
-        out.textContent = "⏳ Bitte warte 20 Minuten.";
-        return;
+        out.textContent = "⏳ Bitte warte 20 Minuten."; return;
       }
       localStorage.setItem('lastTime', now);
       if (!isAdmin) {
         btn.disabled = true;
         setTimeout(() => btn.disabled = false, 1_200_000);
       }
-      const alt = daten[k]||0, neu = alt+s;
+      // Hauptpunkte
+      const alt = daten[k]||0, neu = alt + s;
       db.ref('punkte/'+k).set(neu);
+      // Tagespunkte
+      const today = getToday();
+      db.ref('daily/' + today + '/' + k)
+        .transaction(curr => (curr||0) + s);
       out.innerHTML = `<span class="animate-check">✅ Klasse ${k} hat jetzt ${neu} Punkte.</span>`;
       let count = +localStorage.getItem('eintraege')||0; count++;
       localStorage.setItem('eintraege', count);
@@ -286,7 +333,16 @@
       }
     }
 
-    // --- Rangliste & Statistik ---
+    function renderDailyLeaderboard(data) {
+      const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]);
+      let html = '<h3>📅 Tagesbestenliste</h3>';
+      entries.forEach(([k,v], i) => {
+        const med = i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
+        html += `<p>${med} ${k}: ${v} Punkte</p>`;
+      });
+      document.getElementById('dailyLeaderboard').innerHTML = html;
+    }
+
     function ranglisteAktualisieren() {
       const arr = Object.entries(daten).sort((a,b)=>b[1]-a[1]);
       let html = '<h3>🏆 Rangliste</h3>';
@@ -302,7 +358,6 @@
         `🚶‍♂️ ${total} Stockwerke → ${total*20} Schritte | 🔥 ${(total*0.17).toFixed(1)} kcal | 🗻 ${(total*3.3).toFixed(1)} hm`;
     }
 
-    // --- Confetti ---
     function confetti() {
       const cols = ['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
       for (let i=0; i<150; i++){
@@ -323,59 +378,65 @@
       }
     }
 
-    // --- Wheel render & Drehung ---
-    function zeichneSVGSegmente(){
-      const g=document.getElementById('radSegmente'),
-            n=segments.length, cx=125, cy=125, r=120;
-      g.innerHTML='';
-      segments.forEach((w,i)=>{
+    function zeichneSVGSegmente() {
+      const g = document.getElementById('radSegmente'),
+            n = segments.length, cx=125, cy=125, r=120;
+      g.innerHTML = '';
+      segments.forEach((w,i) => {
         const start=(360/n)*i, end=start+(360/n);
         const x1=cx+r*Math.cos(Math.PI/180*start),
               y1=cy+r*Math.sin(Math.PI/180*start),
               x2=cx+r*Math.cos(Math.PI/180*end),
               y2=cy+r*Math.sin(Math.PI/180*end);
-        const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-        p.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
-        p.setAttribute('fill',colors[i%colors.length]); g.appendChild(p);
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+        path.setAttribute('fill', colors[i % colors.length]);
+        g.appendChild(path);
         const mid=(start+end)/2,
               tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
               ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
-              t=document.createElementNS('http://www.w3.org/2000/svg','text');
+              t = document.createElementNS('http://www.w3.org/2000/svg','text');
         t.setAttribute('x',tx); t.setAttribute('y',ty);
         t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
-        t.setAttribute('text-anchor','middle'); t.setAttribute('alignment-baseline','middle');
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('alignment-baseline','middle');
         t.setAttribute('font-size','12'); t.setAttribute('fill','#fff');
         t.textContent=w; g.appendChild(t);
       });
     }
-    function getSegmentIndex(rotationDeg,count=20){
-      let rot=rotationDeg%360; if(rot<0)rot+=360;
-      const pointer=270, local=(pointer-rot+360)%360, size=360/count;
-      return Math.floor(local/size);
+
+    function getSegmentIndex(rotationDeg, count=20) {
+      let rot = rotationDeg % 360; if(rot<0) rot+=360;
+      const pointer=270;
+      const local=(pointer-rot+360)%360;
+      return Math.floor(local/(360/count));
     }
-    function dreheGluecksradSVG(){
-      if(!currentSpinClass)return;
+
+    function dreheGluecksradSVG() {
+      if (!currentSpinClass) return;
       const n=segments.length, base=360/n;
       const spins=4+Math.random()*2, offset=Math.random()*base;
-      aktuelleDrehung+=spins*360+offset;
-      const w=document.getElementById('svgRad');
-      w.style.transform=`rotate(${aktuelleDrehung}deg)`;
+      aktuelleDrehung += spins*360 + offset;
+      const w = document.getElementById('svgRad');
+      w.style.transform = `rotate(${aktuelleDrehung}deg)`;
       w.addEventListener('transitionend',()=>{
-        const idx=getSegmentIndex(aktuelleDrehung,n),
-              gew=segments[idx], alt=daten[currentSpinClass]||0, neu=alt+gew;
+        const idx = getSegmentIndex(aktuelleDrehung,n),
+              gew = segments[idx],
+              alt = daten[currentSpinClass]||0,
+              neu = alt + gew;
         db.ref('punkte/'+currentSpinClass).set(neu);
-        document.getElementById('gewinnText').innerHTML=
+        document.getElementById('gewinnText').innerHTML =
           `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
         document.getElementById('gewinnPopup').style.display='block';
       },{once:true});
     }
+
     function hidePopup(){
       document.getElementById('gewinnPopup').style.display='none';
       document.getElementById('gluecksrad').style.display='none';
-      currentSpinClass=null;
+      currentSpinClass = null;
     }
 
-    // --- Admin & Reset ---
     function adminLogin(){
       if(document.getElementById('adminpass').value==='Bistroboykott'){
         localStorage.setItem('admin','true');
@@ -383,14 +444,12 @@
       } else alert('Falsches Passwort');
     }
     function datenZuruecksetzen(){
-      if(!confirm('Punkte wirklich zurücksetzen?'))return;
+      if(!confirm('Punkte wirklich zurücksetzen?')) return;
       db.ref('punkte').remove();
       localStorage.removeItem('eintraege');
       localStorage.removeItem('lastTime');
       alert('Punkte zurückgesetzt.');
     }
-
   </script>
 </body>
 </html>
-
