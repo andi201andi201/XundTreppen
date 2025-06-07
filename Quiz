@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Treppen-Challenge Quiz</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 2em; background: #f0f4c3; color: #333; max-width: 700px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    header img { max-height:80px; display:block; margin:auto; }
+    h1 { color:#558b2f; text-align:center; }
+    a { display:block; text-align:center; margin-top:1em; color:#558b2f; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    #testContainer, #quizContainer { margin-top:2em; padding:1em; border:2px solid #558b2f; border-radius:6px; background:#fff; }
+    h2 { color:#33691e; text-align:center; margin-bottom:0.5em; }
+    #testContainer p, #quizContainer p { font-size:1.2em; margin-bottom:1em; }
+    .option { margin:.5em 0; display:block; }
+    label.option { cursor:pointer; }
+    input[type="radio"] { margin-right:.5em; }
+    button { display:block; margin:1em auto; font-size:1.1em; padding:.5em 1em; background:#558b2f; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    button:hover { background:#33691e; }
+    #result, #testResult { text-align:center; margin-top:1em; font-weight:bold; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <header><img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo"></header>
+  <h1>Tägliches Quiz & Test</h1>
+  <a href="index.html">« Zurück zur Challenge</a>
+
+  <label for="klasseQuiz">Wähle deine Klasse:</label>
+  <select id="klasseQuiz">
+    <option value="">--Bitte wählen--</option>
+  </select>
+
+  <!-- Test am Anfang -->
+  <div id="testContainer">
+    <h2>Test</h2>
+    <div id="testContent"><p>Lade Testfrage...</p></div>
+    <div id="testResult"></div>
+  </div>
+
+  <!-- Haupt-Quiz -->
+  <div id="quizContainer">
+    <p id="info">Lade Quiz...</p>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    // Firebase init
+    firebase.initializeApp({
+      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+      authDomain: "treppenchallenge2025.firebaseapp.com",
+      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "treppenchallenge2025",
+      storageBucket: "treppenchallenge2025.appspot.com",
+      messagingSenderId: "45698338369",
+      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+    });
+    const db = firebase.database();
+    const klasseSelect = document.getElementById('klasseQuiz');
+    const quizContainer = document.getElementById('quizContainer');
+    const resultDiv = document.getElementById('result');
+    const testContent = document.getElementById('testContent');
+    const testResult = document.getElementById('testResult');
+
+    // Klassenliste
+    const klassen = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4","22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1","24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3","24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3","Lehrerteam"];
+    klassen.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = k === 'Lehrerteam' ? '👩‍🏫 Lehrerteam' : k;
+      if (k === 'Lehrerteam') opt.classList.add('separator');
+      klasseSelect.appendChild(opt);
+    });
+
+    function getToday() { return new Date().toISOString().slice(0,10); }
+
+    function displayTest(questionObj) {
+      // Render test(questionObj)
+      testContent.innerHTML = '';
+      const q = document.createElement('p'); q.textContent = questionObj.question;
+      testContent.appendChild(q);
+      questionObj.options.forEach((opt,i) => {
+        const label = document.createElement('label'); label.className = 'option';
+        const input = document.createElement('input'); input.type = 'radio'; input.name = 'test'; input.value = i;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(opt));
+        testContent.appendChild(label);
+      });
+      const btn = document.createElement('button'); btn.textContent = 'Test auswerten';
+      btn.onclick = () => {
+        const sel = document.querySelector('input[name="test"]:checked');
+        if (!sel) { testResult.textContent = 'Bitte wählen.'; return; }
+        const ans = parseInt(sel.value,10);
+        testResult.textContent = ans === 1 ? '✅ Richtig!' : '❌ Falsch.';
+      };
+      testContent.appendChild(btn);
+    }
+
+    function loadQuiz() {
+      const today = getToday();
+      db.ref('quiz/'+today).once('value').then(snap => {
+        const data = snap.val();
+        if (!data) {
+          quizContainer.innerHTML = '<p>Kein Quiz heute.</p>';
+          return;
+        }
+        // Test: gleiche Frage wie erste Quizfrage
+        displayTest(data[0]);
+
+        quizContainer.innerHTML = '';
+        data.forEach((item,i) => {
+          const q = document.createElement('p'); q.textContent = (i+1) + '. ' + item.question;
+          quizContainer.appendChild(q);
+          item.options.forEach((opt,j) => {
+            const label = document.createElement('label'); label.className = 'option';
+            const input = document.createElement('input'); input.type = 'radio'; input.name = 'answer_'+i; input.value = j;
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(opt));
+            quizContainer.appendChild(label);
+          });
+        });
+        const btn = document.createElement('button'); btn.textContent = 'Antworten einreichen';
+        btn.onclick = submitAnswer;
+        quizContainer.appendChild(btn);
+        resultDiv.textContent = '';
+      });
+    }
+
+    function submitAnswer() {
+      const k = klasseSelect.value;
+      if (!k) { alert('Bitte Klasse auswählen.'); return; }
+      const today = getToday();
+      const answers = [];
+      const dataRad = document.querySelectorAll('#quizContainer p');
+      let correctCount = 0;
+      // For each question block
+      dataRad.forEach((p,idx) => {
+        if (idx %  (1 + document.querySelectorAll('input[name="answer_'+idx+'"]').length) === 0) return; // skip
+      });
+      // Simpler: use length data from snapshot
+      // For brevity, we'll award points per correct answer
+      db.ref('quiz/'+today).once('value').then(snap => {
+        const data = snap.val();
+        data.forEach((item,i) => {
+          const sel = document.querySelector('input[name="answer_'+i+'"]:checked');
+          if (sel && parseInt(sel.value,10) === item.answer) correctCount++;
+        });
+        const points = correctCount * 5;
+        // Write points
+        db.ref('punkte/'+k).transaction(v => (v||0)+points);
+        db.ref('daily/'+today+'/'+k).transaction(v => (v||0)+points);
+        resultDiv.textContent = `Du hast ${correctCount} von ${data.length} richtig und +${points} Punkte.`;
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadQuiz();
+    });
+  </script>
+</body>
+</html>
