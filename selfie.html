@@ -5,34 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Selfie-Station</title>
   <style>
-    /* Grundlayout */
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f4c3;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 700px;
-      margin: 2em auto;
-      background: #fff;
-      border: 3px solid #558b2f;
-      border-radius: 8px;
-      padding: 1em;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    h1 {
-      color:#558b2f;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin: 0; padding: 0; }
+    .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
+    h1 { color:#558b2f; }
     /* Video-Vorschau */
     video {
       border: 2px solid #558b2f;
       border-radius: 4px;
       margin: 1em auto;
       display: block;
+      object-fit: cover;
+      width: 100%;
+      max-width: 280px;
+      height: auto;
     }
-    /* Button zum Auslösen */
+    /* Button */
     button {
       background:#558b2f;
       color:#fff;
@@ -50,11 +37,8 @@
       background:#33691e;
     }
     /* Statusanzeige */
-    #uploadStatus {
-      margin-top: .5em;
-      font-weight: bold;
-    }
-    /* Galerie-Vorschaubilder */
+    #uploadStatus { margin-top: .5em; font-weight: bold; }
+    /* Galerie-Bilder */
     #selfieGallery img {
       width: 100px;
       margin:.5em;
@@ -69,18 +53,14 @@
       display:inline-block;
       margin-bottom:1em;
     }
-    a.back:hover {
-      text-decoration:underline;
-    }
-    /* Lightbox für Großansicht */
+    a.back:hover { text-decoration:underline; }
+    /* Lightbox */
     #lightboxOverlay {
       display:none;
-      position:fixed;
-      top:0; left:0;
+      position:fixed; top:0; left:0;
       width:100%; height:100%;
       background:rgba(0,0,0,0.8);
-      justify-content:center;
-      align-items:center;
+      justify-content:center; align-items:center;
       z-index:2000;
     }
     #lightboxOverlay img {
@@ -90,46 +70,30 @@
       border-radius:4px;
     }
   </style>
-
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
-
   <div class="container">
-    <!-- Überschrift und Zurück-Link -->
     <h1>Selfie-Station</h1>
     <a href="index.html" class="back">« Zurück zur Challenge</a>
 
-    <!-- Live-Video von der Kamera -->
-    <video id="video"
-           width="280" height="210"
-           autoplay
-           muted       <!-- Verhindert Audio-Block -->
-           playsinline><!-- iOS Inline-Mode -->
-    </video>
-
-    <!-- Button zum Selfie-Auslösen -->
+    <!-- Optimiertes Video-Element für Mobil -->
+    <video id="video" width="280" height="210" autoplay muted playsinline webkit-playsinline></video>
     <button id="snapBtn">Selfie machen</button>
-
-    <!-- Statusmeldungen (Upload, Fehler, etc.) -->
     <div id="uploadStatus"></div>
 
-    <!-- Galerie aller heutigen Selfies -->
     <h2>Alle Selfies heute</h2>
     <div id="selfieGallery"></div>
   </div>
 
-  <!-- Lightbox-Overlay für Großansicht -->
+  <!-- Lightbox Overlay -->
   <div id="lightboxOverlay" onclick="hideLightbox()">
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
 
   <script>
-    // -----------------------------
-    // 1) Firebase initialisieren
-    // -----------------------------
+    // Firebase initialisieren
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
       authDomain: "treppenchallenge2025.firebaseapp.com",
@@ -141,44 +105,32 @@
     });
     const db = firebase.database();
 
-    // -----------------------------
-    // 2) Kamerastream einrichten
-    // -----------------------------
     const video   = document.getElementById('video');
     const snapBtn = document.getElementById('snapBtn');
-
-    // Button zunächst deaktivieren, bis Stream bereit ist
+    // Button sperren bis Stream bereit
     snapBtn.disabled = true;
 
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
         video.onloadedmetadata = () => {
-          // Sobald Bilddaten da sind: Video starten + Button aktivieren
           video.play();
           snapBtn.disabled = false;
         };
       })
       .catch(err => console.error('Kamera-Fehler:', err));
 
-    // ----------------------------------------
-    // 3) Selfie aufnehmen & Imgur-Upload
-    // ----------------------------------------
     snapBtn.onclick = () => {
-      // Offscreen-Canvas erzeugen und Bild malen
       const offscreen = document.createElement('canvas');
       offscreen.width  = video.videoWidth;
       offscreen.height = video.videoHeight;
       offscreen.getContext('2d').drawImage(video, 0, 0);
 
-      // Canvas als Blob (JPEG) auslesen
       offscreen.toBlob(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          const base64 = reader.result.split(',')[1];  // reines Bild-Datenfeld
+          const base64 = reader.result.split(',')[1];
           document.getElementById('uploadStatus').textContent = '⏳ Upload zu Imgur…';
-
-          // Imgur-API-Call
           fetch('https://api.imgur.com/3/image', {
             method: 'POST',
             headers: {
@@ -189,18 +141,14 @@
           })
           .then(res => res.json())
           .then(json => {
-            if (!json.success) {
-              throw new Error('Imgur-Upload fehlgeschlagen');
-            }
-            // URL aus Imgur-Antwort
+            if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
             const url = json.data.link;
             const today = new Date().toISOString().slice(0,10);
-            // in Realtime-DB speichern
             return db.ref(`selfies/${today}`).push(url);
           })
           .then(() => {
             document.getElementById('uploadStatus').textContent = '✅ Hochgeladen via Imgur';
-            loadGallery();  // Galerie aktualisieren
+            loadGallery();
           })
           .catch(err => {
             console.error('Upload-Fehler:', err);
@@ -211,17 +159,11 @@
       }, 'image/jpeg', 0.8);
     };
 
-    // -----------------------------
-    // 4) Galerie laden
-    // -----------------------------
     function loadGallery() {
       const gallery = document.getElementById('selfieGallery');
       gallery.innerHTML = '';
       const today = new Date().toISOString().slice(0,10);
-
-      db.ref(`selfies/${today}`)
-        .orderByKey()
-        .once('value')
+      db.ref(`selfies/${today}`).orderByKey().once('value')
         .then(snap => {
           snap.forEach(child => {
             const url = child.val();
@@ -233,20 +175,19 @@
         });
     }
 
-    // -----------------------------
-    // 5) Lightbox-Funktionen
-    // -----------------------------
     function showLightbox(src) {
       const overlay = document.getElementById('lightboxOverlay');
       document.getElementById('lightboxImage').src = src;
       overlay.style.display = 'flex';
     }
+
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
-    // Erste Anzeige der Galerie starten
+    // Erste Galerie-Anzeige
     loadGallery();
   </script>
 </body>
 </html>
+
