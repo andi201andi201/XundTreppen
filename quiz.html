@@ -9,8 +9,8 @@
     .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     header img { max-height:80px; display:block; margin:auto; }
     h1 { color:#558b2f; text-align:center; margin-bottom:0.5em; }
-    a { display:block; text-align:center; margin-bottom:1em; color:#558b2f; text-decoration:none; }
-    a:hover { text-decoration:underline; }
+    a.back { display:block; text-align:center; margin-bottom:1em; color:#558b2f; text-decoration:none; }
+    a.back:hover { text-decoration:underline; }
     label, select { font-size:1em; }
     #quizContainer { margin-top:1em; }
     h2 { color:#33691e; text-align:center; margin:0.5em 0; }
@@ -25,9 +25,12 @@
 </head>
 <body>
   <div class="container">
-    <header><img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo"></header>
+    <header>
+      <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo">
+    </header>
     <h1>Tägliches Quiz</h1>
-    <a href="index.html">« Zurück zur Challenge</a>
+    <!-- Back-Link übernimmt alle vorhandenen URL-Parameter -->
+    <a id="backLink" class="back">« Zurück zur Challenge</a>
 
     <label for="klasseQuiz">Wähle deine Klasse:</label>
     <select id="klasseQuiz">
@@ -44,6 +47,10 @@
   </div>
 
   <script>
+    // Back-Link dynamisch setzen auf index.html plus alle query-Parameter
+    const backLink = document.getElementById('backLink');
+    backLink.href = './index.html' + window.location.search;
+
     // Firebase initialisieren
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
@@ -72,7 +79,6 @@
       const opt = document.createElement('option');
       opt.value = k;
       opt.textContent = k === 'Lehrerteam' ? '👩‍🏫 Lehrerteam' : k;
-      if (k === 'Lehrerteam') opt.classList.add('separator');
       klasseSelect.appendChild(opt);
     });
 
@@ -111,13 +117,14 @@
       if (!k) { alert('Bitte Klasse auswählen.'); return; }
       const today = getToday();
       db.ref(`quiz/${today}`).once('value').then(snap => {
-        const questions = Object.values(snap.val());
+        const questions = Object.values(snap.val() || []);
         let correct = 0;
         questions.forEach((q,i) => {
           const sel = document.querySelector(`input[name="answer_${i}"]:checked`);
           if (sel && parseInt(sel.value,10) === q.answer) correct++;
         });
-        const points = correct;
+        const points = correct; // 1 Punkt pro richtiger Antwort
+        // Punkte in Firebase speichern
         db.ref(`punkte/${k}`).transaction(v => (v||0) + points);
         db.ref(`daily/${today}/${k}`).transaction(v => (v||0) + points);
         resultDiv.textContent = `Quiz: ${correct} von ${questions.length} richtig → +${points} Punkt${points!==1?'e':''}`;
