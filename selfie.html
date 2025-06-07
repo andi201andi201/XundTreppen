@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Selfie-Station</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin: 0; padding: 0; }
+    .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
+    h1 { color:#558b2f; }
+    video, canvas { border: 2px solid #558b2f; border-radius: 4px; margin: 1em auto; display: block; }
+    button { background:#558b2f; color:#fff; border:none; padding:.5em 1em; border-radius:4px; cursor:pointer; font-size:1em; }
+    button:hover { background:#33691e; }
+    #selfieGallery img { width: 100px; margin:.5em; border:2px solid #00796b; border-radius:4px; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Selfie-Station</h1>
+    <a href="index.html" style="color:#558b2f; text-decoration:none;">« Zurück zur Challenge</a>
+
+    <video id="video" width="280" height="210" autoplay></video>
+    <button id="snapBtn">Selfie machen</button>
+    <canvas id="canvas" width="280" height="210" style="display:none;"></canvas>
+    <div id="uploadStatus"></div>
+
+    <h2>Alle Selfies heute</h2>
+    <div id="selfieGallery"></div>
+  </div>
+
+  <script>
+    // 1) Firebase init (inkl. Storage)
+    firebase.initializeApp({
+      apiKey: "...",
+      authDomain: "...",
+      databaseURL: "...",
+      projectId: "...",
+      storageBucket: "...",
+      messagingSenderId: "...",
+      appId: "..."
+    });
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    // 2) Kamera-Stream
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => { video.srcObject = stream; })
+      .catch(console.error);
+
+    // 3) Selfie machen & hochladen
+    document.getElementById('snapBtn').onclick = () => {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        const today = new Date().toISOString().slice(0,10);
+        const filename = `selfies/${today}/${Date.now()}.jpg`;
+        document.getElementById('uploadStatus').textContent = '⏳ Hochladen…';
+        storage.ref(filename).put(blob)
+          .then(snap => snap.ref.getDownloadURL())
+          .then(url => {
+            // URL in RealtimeDB speichern
+            return db.ref(`selfies/${today}`).push(url);
+          })
+          .then(() => {
+            document.getElementById('uploadStatus').textContent = '✅ Hochgeladen';
+            loadGallery();
+          })
+          .catch(err => {
+            console.error(err);
+            document.getElementById('uploadStatus').textContent = '❌ Fehler';
+          });
+      }, 'image/jpeg', 0.8);
+    };
+
+    // 4) Galerie laden
+    function loadGallery() {
+      const gallery = document.getElementById('selfieGallery');
+      gallery.innerHTML = '';
+      const today = new Date().toISOString().slice(0,10);
+      db.ref(`selfies/${today}`).orderByKey().once('value')
+        .then(snap => {
+          snap.forEach(child => {
+            const url = child.val();
+            const img = document.createElement('img');
+            img.src = url;
+            gallery.prepend(img);
+          });
+        });
+    }
+
+    // initial Galerie-Aufbau
+    loadGallery();
+  </script>
+</body>
+</html>
