@@ -147,7 +147,7 @@
           const sel = document.querySelector('input[name="answer_'+i+'"]:checked');
           if (sel && parseInt(sel.value,10) === item.answer) correctCount++;
         });
-        const points = correctCount * 5;
+        const points = correctCount * 1;
         // Write points
         db.ref('punkte/'+k).transaction(v => (v||0)+points);
         db.ref('daily/'+today+'/'+k).transaction(v => (v||0)+points);
