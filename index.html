@@ -15,131 +15,58 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    header img {
-      max-height: 100px;
-      display: block;
-      margin: auto;
+    header img { max-height:100px; display:block; margin:auto; }
+    h1 { color:#00796b; text-align:center; }
+    select, button, input { display:block; margin:1em auto; font-size:1.1em; padding:.4em; }
+    button { background:#00796b; color:#fff; border:none; border-radius:4px; cursor:pointer; }
+    button:hover { background:#004d40; }
+    button:disabled { background:#ccc!important; cursor:not-allowed!important; }
+    #output, #statistik, #countdown, #admin { text-align:center; margin-top:1em; }
+    .animate-check { animation:bounce .6s; display:inline-block; }
+    @keyframes bounce { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+    .leader { font-weight:bold; color:gold; animation:glow 1s infinite alternate; }
+    @keyframes glow { from{text-shadow:0 0 10px gold} to{text-shadow:0 0 20px orange} }
+    #leaderContainer { display:flex; gap:1em; flex-wrap:wrap; justify-content:center; margin-top:1em; }
+    #leaderboard { flex:1; border:2px solid #00796b; padding:1em; border-radius:6px; }
+    #dailyLeaderboard { flex:1; opacity:.7; padding:1em; border-radius:6px; background:#f9f9f9; }
+    #modalOverlay {
+      display:none; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.6);
+      align-items:center; justify-content:center; z-index:1000;
     }
-    h1 {
-      color: #00796b;
-      text-align: center;
+    #modalContent {
+      background:#fff; border-radius:8px; padding:1em;
+      text-align:center; max-width:320px; margin:auto;
     }
-    select, button, input {
-      display: block;
-      margin: 1em auto;
-      font-size: 1.1em;
-      padding: 0.4em;
-    }
-    button {
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover { background-color: #004d40; }
-    button:disabled {
-      background: #ccc !important;
-      cursor: not-allowed !important;
-    }
-    #output, #statistik, #countdown, #leaderboard, #dailyLeaderboard, #admin {
-      text-align: center;
-      margin-top: 1em;
-    }
-    .animate-check {
-      animation: bounce 0.6s;
-      display: inline-block;
-    }
-    @keyframes bounce {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-    .leader {
-      font-weight: bold;
-      color: gold;
-      animation: glow 1s infinite alternate;
-    }
-    @keyframes glow {
-      from { text-shadow: 0 0 10px gold; }
-      to   { text-shadow: 0 0 20px orange; }
-    }
-    /* Wheel container */
     #svgContainer {
-      position: relative;
-      width: 280px; height: 280px;
-      margin: 2em auto; padding: 5px;
-      border: 5px solid #00796b;
-      border-radius: 50%;
-      box-sizing: content-box;
+      position:relative; width:280px; height:280px;
+      margin:auto; padding:5px; border:5px solid #00796b;
+      border-radius:50%; box-sizing:content-box;
     }
-    /* Pointer */
     #zeiger {
-      position: absolute;
-      top: -30px; left: 50%;
-      transform: translateX(-50%);
-      width: 0; height: 0;
-      border-left: 20px solid transparent;
-      border-right:20px solid transparent;
-      border-top: 30px solid #333;
-      z-index: 2;
+      position:absolute; top:-30px; left:50%;
+      transform:translateX(-50%);
+      border-left:20px solid transparent; border-right:20px solid transparent;
+      border-top:30px solid #333; z-index:2;
     }
-    /* Wheel */
-    #svgRad {
-      width: 100%; height:100%;
-      border-radius:50%;
-      transition: transform 5s ease-out;
-    }
-    #centerCircle {
-      fill: #fff; stroke: #333; stroke-width: 4;
-    }
-    /* Popup */
-    #gewinnPopup {
-      display: none;
-      position: fixed;
-      top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      background:#fff; border:3px solid #00796b;
-      border-radius:12px; padding:1em 2em;
-      font-size:1.4em; text-align:center;
-      box-shadow:0 0 20px rgba(0,0,0,0.2);
-      z-index:999;
-    }
+    #svgRad { width:100%; height:100%; border-radius:50%; transition:transform 5s ease-out; }
+    #centerCircle { fill:#fff; stroke:#333; stroke-width:4; }
+    #gewinnPopup { display:none; margin-top:1em; }
     #gewinnPopup button {
       margin-top:1em; padding:.5em 1.5em;
-      background:#00796b; color:#fff; border:none;
-      border-radius:4px; cursor:pointer;
-    }
-    #gluecksrad {
-      display:none; text-align:center; margin-top:2em;
-    }
-    /* Tagesbestenliste */
-    #dailyLeaderboard {
-      border-top:2px dashed #00796b;
-      padding-top:1em;
-    }
-    #dailyLeaderboard h3 {
-      color:#00796b;
-      margin-bottom:.5em;
-    }
-    #dailyLeaderboard p {
-      margin: .2em 0;
+      background:#00796b; color:#fff; border:none; border-radius:4px; cursor:pointer;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <header>
-    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo">
-  </header>
+  <header><img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo"></header>
   <h1>Treppen-Challenge</h1>
   <div id="countdown"></div>
 
   <label for="klasse">Wähle deine Klasse:</label>
-  <select id="klasse">
-    <option value="">--Bitte wählen--</option>
-  </select>
+  <select id="klasse"><option value="">--Bitte wählen--</option></select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
   <select id="stockwerk">
@@ -152,25 +79,13 @@
   <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
 
   <div id="output"></div>
-  <div id="leaderboard"></div>
-  <div id="dailyLeaderboard"></div>
-  <div id="statistik"></div>
 
-  <div id="gluecksrad">
-    <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
-    <div id="svgContainer">
-      <div id="zeiger"></div>
-      <svg id="svgRad" viewBox="0 0 250 250">
-        <g id="radSegmente"></g>
-        <circle id="centerCircle" cx="125" cy="125" r="40"/>
-      </svg>
-    </div>
-    <button onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
-    <div id="gewinnPopup">
-      <div id="gewinnText"></div>
-      <button onclick="hidePopup()">OK</button>
-    </div>
+  <div id="leaderContainer">
+    <div id="leaderboard"></div>
+    <div id="dailyLeaderboard"></div>
   </div>
+
+  <div id="statistik"></div>
 
   <div id="admin">
     <h3>🔐 Adminbereich</h3>
@@ -181,274 +96,284 @@
     </div>
   </div>
 
+  <!-- Modal für Glücksrad -->
+  <div id="modalOverlay">
+    <div id="modalContent">
+      <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
+      <div id="svgContainer">
+        <div id="zeiger"></div>
+        <svg id="svgRad" viewBox="0 0 250 250">
+          <g id="radSegmente"></g>
+          <circle id="centerCircle" cx="125" cy="125" r="40"/>
+        </svg>
+      </div>
+      <button id="spinBtn" onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
+      <div id="gewinnPopup">
+        <div id="gewinnText"></div>
+        <button onclick="hidePopup()">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Firebase initialisieren
-    firebase.initializeApp({
-      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
-      authDomain: "treppenchallenge2025.firebaseapp.com",
-      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "treppenchallenge2025",
-      storageBucket: "treppenchallenge2025.appspot.com",
-      messagingSenderId: "45698338369",
-      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
-    });
-    const db = firebase.database();
-
-    let daten = {}, _lastLeader = null,
-        aktuelleDrehung = 0, currentSpinClass = null;
-
-    // Farben & Segmente
-    const colors = [
-      '#e74c3c','#2980b9','#27ae60','#f39c12','#8e44ad',
-      '#d35400','#16a085','#c0392b','#2c3e50','#7f8c8d',
-      '#d81b60','#0097a7','#f06292','#4db6ac','#ba68c8',
-      '#ff8a65','#aed581','#7986cb','#ffb74d','#a1887f'
-    ];
-    let segments = [
-      50,25,10,10,
-      ...Array(8).fill(1),
-      ...Array(5).fill(2),
-      ...Array(4).fill(5)
-    ];
-    for (let i = segments.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [segments[i], segments[j]] = [segments[j], segments[i]];
-    }
-    const comments = {
-      1:  "💪 Ein Punkt ist besser als kein Punkt!",
-      2:  "🔁 Weiter so – jeder Schritt zählt!",
-      5:  "🚶‍♂️ Das summiert sich – dranbleiben!",
-      10: "🎯 Stark! 10 Bonuspunkte geholt!",
-      25: "🏅 WOW – 25 Punkte für dich!",
-      50: "👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
-    };
-
-    // Hilfsfunktion: Heute als YYYY-MM-DD
-    function getToday() {
-      return new Date().toISOString().slice(0,10);
-    }
-
-    // Countdown
-    const enddatum = new Date("2025-06-18T12:00:00").getTime();
-    setInterval(() => {
-      const now = Date.now(), diff = enddatum - now;
-      if (diff < 0) {
-        document.getElementById("countdown").textContent = "🏁 Challenge beendet!";
-        return;
+    // Passwort-Abfrage außer stock=1..4
+    (function(){
+      const p=new URLSearchParams(location.search).get('stock');
+      if(!['1','2','3','4'].includes(p)){
+        let pw;
+        do {
+          pw=prompt('Passwort erforderlich:');
+          if(pw===null){
+            document.body.innerHTML='<p style="text-align:center;color:red;">Zugriff verweigert.</p>';
+            return;
+          }
+          if(pw!=='Bistroboykott') alert('Falsches Passwort');
+        } while(pw!=='Bistroboykott');
       }
-      const tage = Math.floor(diff/(1000*60*60*24)),
-            stunden = new Date(diff).getUTCHours(),
-            minuten = new Date(diff).getUTCMinutes();
-      document.getElementById("countdown").textContent =
-        `⏳ Noch ${tage} Tage, ${stunden} Stunden, ${minuten} Minuten`;
-    }, 1000);
+      initApp();
+    })();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Klassen-Dropdown
-      const klassen = [
-        "22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
-        "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
-        "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
-        "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"
+    function initApp(){
+      firebase.initializeApp({
+        apiKey:"AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+        authDomain:"treppenchallenge2025.firebaseapp.com",
+        databaseURL:"https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId:"treppenchallenge2025",
+        storageBucket:"treppenchallenge2025.appspot.com",
+        messagingSenderId:"45698338369",
+        appId:"1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+      });
+      const db=firebase.database();
+      let daten={}, _lastLeader=null, aktuelleDrehung=0, currentSpinClass=null;
+
+      const colors=[
+        '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+        '#3498db','#9b59b6','#34495e','#16a085','#27ae60',
+        '#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b',
+        '#f39c12','#7f8c8d','#d35400','#e67e22','#e74c3c'
       ];
-      const selK = document.getElementById('klasse');
-      klassen.forEach(k => {
-        const o = document.createElement('option');
-        o.value = k; o.textContent = k;
-        selK.appendChild(o);
-      });
 
-      // Wheel zeichnen
-      zeichneSVGSegmente();
+      let segments=[50,25,10,10,...Array(8).fill(1),...Array(5).fill(2),...Array(4).fill(5)];
+      segments.sort(()=>Math.random()-0.5);
 
-      // 20-Min Lock initial & stock param
-      const isAdmin = localStorage.getItem('admin') === 'true';
-      const last = +localStorage.getItem('lastTime') || 0;
-      const now = Date.now();
-      const btn = document.getElementById('enterBtn');
-      if (!isAdmin && now - last < 1_200_000) {
-        btn.disabled = true;
-        setTimeout(() => btn.disabled = false, 1_200_000 - (now - last));
-      }
-      // URL stock param
-      const params = new URLSearchParams(window.location.search);
-      const sp = params.get('stock');
-      if (['1','2','3','4'].includes(sp)) {
-        const selS = document.getElementById('stockwerk');
-        selS.value = sp; selS.disabled = true;
-      }
+      const comments={
+        1:"💪 Ein Punkt ist besser als kein Punkt!",
+        2:"🔁 Weiter so – jeder Schritt zählt!",
+        5:"🚶‍♂️ Das summiert sich – dranbleiben!",
+        10:"🎯 Stark! 10 Bonuspunkte geholt!",
+        25:"🏅 WOW – 25 Punkte für dich!",
+        50:"👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
+      };
 
-      // Main leaderboard listener
-      db.ref('punkte').on('value', snap => {
-        daten = snap.val() || {};
-        ranglisteAktualisieren();
-        statistikAktualisieren();
-        const lead = Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
-        if (_lastLeader === null) _lastLeader = lead;
-        else if (lead && lead !== _lastLeader) {
-          _lastLeader = lead; confetti();
+      function getToday(){ return new Date().toISOString().slice(0,10); }
+
+      // Countdown
+      const end=new Date("2025-06-18T12:00:00").getTime();
+      setInterval(()=>{
+        const diff=end-Date.now();
+        if(diff<0){
+          document.getElementById("countdown").textContent="🏁 Challenge beendet!";
+          return;
         }
-      });
+        const t=Math.floor(diff/86400000),
+              h=new Date(diff).getUTCHours(),
+              m=new Date(diff).getUTCMinutes();
+        document.getElementById("countdown").textContent=`⏳ Noch ${t} Tage, ${h} Stunden, ${m} Minuten`;
+      },1000);
 
-      // Daily listener
-      const today = getToday();
-      db.ref('daily/' + today).on('value', snap => {
-        const dailyData = snap.val() || {};
-        renderDailyLeaderboard(dailyData);
-      });
-    });
+      document.addEventListener('DOMContentLoaded',()=>{
+        // Klassen
+        const kl=["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
+                  "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
+                  "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
+                  "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"];
+        const selK=document.getElementById('klasse');
+        kl.forEach(k=>selK.append(Object.assign(document.createElement('option'),{value:k,textContent:k})));
 
-    function punkteSpeichern() {
-      const k = document.getElementById('klasse').value;
-      const s = parseInt(document.getElementById('stockwerk').value);
-      const out = document.getElementById('output');
-      if (!k || isNaN(s)) {
-        out.textContent = "Bitte alles auswählen."; return;
-      }
-      const isAdmin = localStorage.getItem('admin')==='true';
-      const last = +localStorage.getItem('lastTime')||0;
-      const now = Date.now();
-      const btn = document.getElementById('enterBtn');
-      if (!isAdmin && now - last < 1_200_000) {
-        out.textContent = "⏳ Bitte warte 20 Minuten."; return;
-      }
-      localStorage.setItem('lastTime', now);
-      if (!isAdmin) {
-        btn.disabled = true;
-        setTimeout(() => btn.disabled = false, 1_200_000);
-      }
-      // Hauptpunkte
-      const alt = daten[k]||0, neu = alt + s;
-      db.ref('punkte/'+k).set(neu);
-      // Tagespunkte
-      const today = getToday();
-      db.ref('daily/' + today + '/' + k)
-        .transaction(curr => (curr||0) + s);
-      out.innerHTML = `<span class="animate-check">✅ Klasse ${k} hat jetzt ${neu} Punkte.</span>`;
-      let count = +localStorage.getItem('eintraege')||0; count++;
-      localStorage.setItem('eintraege', count);
-      if ([10,20,50,100].includes(count)) {
-        currentSpinClass = k;
-        document.getElementById('gluecksrad').style.display = 'block';
-      }
-    }
+        zeichneSVGSegmente();
 
-    function renderDailyLeaderboard(data) {
-      const entries = Object.entries(data).sort((a,b)=>b[1]-a[1]);
-      let html = '<h3>📅 Tagesbestenliste</h3>';
-      entries.forEach(([k,v], i) => {
-        const med = i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
-        html += `<p>${med} ${k}: ${v} Punkte</p>`;
-      });
-      document.getElementById('dailyLeaderboard').innerHTML = html;
-    }
+        // 20min Lock
+        const isAdmin=localStorage.getItem('admin')==='true';
+        if(isAdmin) document.getElementById('adminControls').style.display='block';
+        const last=+localStorage.getItem('lastTime')||0, now=Date.now(), btn=document.getElementById('enterBtn');
+        if(!isAdmin && now-last<1200000){
+          btn.disabled=true;
+          setTimeout(()=>btn.disabled=false,1200000-(now-last));
+        }
 
-    function ranglisteAktualisieren() {
-      const arr = Object.entries(daten).sort((a,b)=>b[1]-a[1]);
-      let html = '<h3>🏆 Rangliste</h3>';
-      arr.forEach(([k,v], i) => {
-        const pok = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
-        html += `<p class="${i==0?'leader':''}">${pok} ${k}: ${v} Punkte</p>`;
-      });
-      document.getElementById('leaderboard').innerHTML = html;
-    }
-    function statistikAktualisieren() {
-      const total = Object.values(daten).reduce((a,b)=>a+b,0);
-      document.getElementById('statistik').textContent =
-        `🚶‍♂️ ${total} Stockwerke → ${total*20} Schritte | 🔥 ${(total*0.17).toFixed(1)} kcal | 🗻 ${(total*3.3).toFixed(1)} hm`;
-    }
+        // stock param
+        const sp=new URLSearchParams(location.search).get('stock');
+        if(['1','2','3','4'].includes(sp)){
+          const ss=document.getElementById('stockwerk');
+          ss.value=sp; ss.disabled=true;
+        }
 
-    function confetti() {
-      const cols = ['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
-      for (let i=0; i<150; i++){
-        const d = document.createElement('div'), size=4+Math.random()*8;
-        Object.assign(d.style,{
-          position:'fixed',width:`${size}px`,height:`${size}px`,
-          background:cols[Math.floor(Math.random()*cols.length)],
-          borderRadius:'50%',top:`${Math.random()*100}%`,left:`${Math.random()*100}%`,
-          pointerEvents:'none',opacity:'1',zIndex:1000,
-          transition:'opacity 1s ease-out,transform 1s ease-out'
+        db.ref('punkte').on('value',snap=>{
+          daten=snap.val()||{};
+          ranglisteAktualisieren();
+          statistikAktualisieren();
+          const lead=Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
+          if(_lastLeader===null)_lastLeader=lead;
+          else if(lead!==_lastLeader){ _lastLeader=lead; confetti();}
         });
-        document.body.appendChild(d);
-        setTimeout(()=>{
-          d.style.transform=`translateY(-${20+Math.random()*50}px)`;
-          d.style.opacity='0';
-        },50);
-        setTimeout(()=>d.remove(),1200+Math.random()*600);
-      }
-    }
 
-    function zeichneSVGSegmente() {
-      const g = document.getElementById('radSegmente'),
-            n = segments.length, cx=125, cy=125, r=120;
-      g.innerHTML = '';
-      segments.forEach((w,i) => {
-        const start=(360/n)*i, end=start+(360/n);
-        const x1=cx+r*Math.cos(Math.PI/180*start),
-              y1=cy+r*Math.sin(Math.PI/180*start),
-              x2=cx+r*Math.cos(Math.PI/180*end),
-              y2=cy+r*Math.sin(Math.PI/180*end);
-        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-        path.setAttribute('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
-        path.setAttribute('fill', colors[i % colors.length]);
-        g.appendChild(path);
-        const mid=(start+end)/2,
-              tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
-              ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
-              t = document.createElementNS('http://www.w3.org/2000/svg','text');
-        t.setAttribute('x',tx); t.setAttribute('y',ty);
-        t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
-        t.setAttribute('text-anchor','middle');
-        t.setAttribute('alignment-baseline','middle');
-        t.setAttribute('font-size','12'); t.setAttribute('fill','#fff');
-        t.textContent=w; g.appendChild(t);
+        db.ref('daily/'+getToday()).on('value',snap=>{
+          renderDailyLeaderboard(snap.val()||{});
+        });
       });
-    }
 
-    function getSegmentIndex(rotationDeg, count=20) {
-      let rot = rotationDeg % 360; if(rot<0) rot+=360;
-      const pointer=270;
-      const local=(pointer-rot+360)%360;
-      return Math.floor(local/(360/count));
-    }
+      window.punkteSpeichern=function(){
+        const k=document.getElementById('klasse').value;
+        const s=parseInt(document.getElementById('stockwerk').value);
+        const out=document.getElementById('output');
+        if(!k||isNaN(s)){ out.textContent="Bitte alles auswählen."; return; }
+        const isAdmin=localStorage.getItem('admin')==='true';
+        const last=+localStorage.getItem('lastTime')||0, now=Date.now(), btn=document.getElementById('enterBtn');
+        if(!isAdmin && now-last<1200000){
+          out.textContent="⏳ Bitte warte 20 Minuten."; return;
+        }
+        localStorage.setItem('lastTime',now);
+        if(!isAdmin){ btn.disabled=true; setTimeout(()=>btn.disabled=false,1200000); }
+        const alt=daten[k]||0, neu=alt+s;
+        db.ref('punkte/'+k).set(neu);
+        db.ref('daily/'+getToday()+'/'+k).transaction(v=> (v||0)+s );
+        out.innerHTML=`<span class="animate-check">✅ Klasse ${k} hat jetzt ${neu} Punkte.</span>`;
+        let cnt=+localStorage.getItem('eintraege')||0; cnt++;
+        localStorage.setItem('eintraege',cnt);
+        if(cnt%10===0){
+          currentSpinClass=k;
+          document.getElementById('gewinnText').innerHTML='';
+          document.getElementById('gewinnPopup').style.display='none';
+          document.getElementById('spinBtn').disabled=false;
+          document.getElementById('modalOverlay').style.display='flex';
+        }
+      };
 
-    function dreheGluecksradSVG() {
-      if (!currentSpinClass) return;
-      const n=segments.length, base=360/n;
-      const spins=4+Math.random()*2, offset=Math.random()*base;
-      aktuelleDrehung += spins*360 + offset;
-      const w = document.getElementById('svgRad');
-      w.style.transform = `rotate(${aktuelleDrehung}deg)`;
-      w.addEventListener('transitionend',()=>{
-        const idx = getSegmentIndex(aktuelleDrehung,n),
-              gew = segments[idx],
-              alt = daten[currentSpinClass]||0,
-              neu = alt + gew;
-        db.ref('punkte/'+currentSpinClass).set(neu);
-        document.getElementById('gewinnText').innerHTML =
-          `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
-        document.getElementById('gewinnPopup').style.display='block';
-      },{once:true});
-    }
+      window.renderDailyLeaderboard=function(data){
+        const e=Object.entries(data).sort((a,b)=>b[1]-a[1]);
+        let html='<h3>📅 Tagesbestenliste</h3>';
+        e.forEach(([k,v],i)=>{
+          const m=i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
+          html+=`<p>${m} ${k}: ${v} Punkte</p>`;
+        });
+        document.getElementById('dailyLeaderboard').innerHTML=html;
+      };
 
-    function hidePopup(){
-      document.getElementById('gewinnPopup').style.display='none';
-      document.getElementById('gluecksrad').style.display='none';
-      currentSpinClass = null;
-    }
+      window.ranglisteAktualisieren=function(){
+        const e=Object.entries(daten).sort((a,b)=>b[1]-a[1]);
+        let html='<h3>🏆 Rangliste</h3>';
+        e.forEach(([k,v],i)=>{
+          const m=i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
+          html+=`<p class="${i==0?'leader':''}">${m} ${k}: ${v} Punkte</p>`;
+        });
+        document.getElementById('leaderboard').innerHTML=html;
+      };
 
-    function adminLogin(){
-      if(document.getElementById('adminpass').value==='Bistroboykott'){
-        localStorage.setItem('admin','true');
-        document.getElementById('adminControls').style.display='block';
-      } else alert('Falsches Passwort');
-    }
-    function datenZuruecksetzen(){
-      if(!confirm('Punkte wirklich zurücksetzen?')) return;
-      db.ref('punkte').remove();
-      localStorage.removeItem('eintraege');
-      localStorage.removeItem('lastTime');
-      alert('Punkte zurückgesetzt.');
+      window.statistikAktualisieren=function(){
+        const total=Object.values(daten).reduce((a,b)=>a+b,0),
+              schritte=total*20,
+              kcal=(total*0.17).toFixed(1),
+              hm=(total*3.3).toFixed(1);
+        document.getElementById('statistik').textContent=
+          `🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
+      };
+
+      window.confetti=function(){
+        const cols=['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
+        for(let i=0;i<150;i++){
+          const d=document.createElement('div'), sz=4+Math.random()*8;
+          Object.assign(d.style,{
+            position:'fixed',width:`${sz}px`,height:`${sz}px`,
+            background:cols[Math.floor(Math.random()*cols.length)],
+            borderRadius:'50%',top:`${Math.random()*100}%`,left:`${Math.random()*100}%`,
+            pointerEvents:'none',opacity:'1',zIndex:1000,
+            transition:'opacity 1s ease-out,transform 1s ease-out'
+          });
+          document.body.appendChild(d);
+          setTimeout(()=>{
+            d.style.transform=`translateY(-${20+Math.random()*50}px)`;
+            d.style.opacity='0';
+          },50);
+          setTimeout(()=>d.remove(),1200+Math.random()*600);
+        }
+      };
+
+      window.zeichneSVGSegmente=function(){
+        const g=document.getElementById('radSegmente'), n=segments.length,
+              cx=125,cy=125,r=120;
+        g.innerHTML='';
+        segments.forEach((w,i)=>{
+          const start=(360/n)*i, end=start+(360/n);
+          const x1=cx+r*Math.cos(Math.PI/180*start),
+                y1=cy+r*Math.sin(Math.PI/180*start),
+                x2=cx+r*Math.cos(Math.PI/180*end),
+                y2=cy+r*Math.sin(Math.PI/180*end);
+          const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+          p.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+          p.setAttribute('fill',colors[i%colors.length]);
+          p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2');
+          g.appendChild(p);
+          const mid=(start+end)/2,
+                tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
+                ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
+                t=document.createElementNS('http://www.w3.org/2000/svg','text');
+          t.setAttribute('x',tx); t.setAttribute('y',ty);
+          t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
+          t.setAttribute('text-anchor','middle');
+          t.setAttribute('alignment-baseline','middle');
+          t.setAttribute('font-size','12');
+          t.setAttribute('fill','#fff');
+          t.textContent=w; g.appendChild(t);
+        });
+      };
+
+      window.getSegmentIndex=function(rot,count=20){
+        let r=rot%360; if(r<0)r+=360;
+        const ptr=270, loc=(ptr-r+360)%360;
+        return Math.floor(loc/(360/count));
+      };
+
+      window.dreheGluecksradSVG=function(){
+        if(!currentSpinClass) return;
+        document.getElementById('spinBtn').disabled=true;
+        document.getElementById('gewinnPopup').style.display='none';
+        document.getElementById('gewinnText').innerHTML='';
+        const n=segments.length, base=360/n;
+        const spins=4+Math.random()*2, offset=Math.random()*base;
+        aktuelleDrehung+=spins*360+offset;
+        const w=document.getElementById('svgRad');
+        w.style.transform=`rotate(${aktuelleDrehung}deg)`;
+        w.addEventListener('transitionend',()=>{
+          const idx=getSegmentIndex(aktuelleDrehung,n),
+                gew=segments[idx], alt=daten[currentSpinClass]||0,
+                neu=alt+gew;
+          db.ref('punkte/'+currentSpinClass).set(neu);
+          document.getElementById('gewinnText').innerHTML=
+            `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
+          document.getElementById('gewinnPopup').style.display='block';
+        },{once:true});
+      };
+
+      window.hidePopup=function(){
+        document.getElementById('modalOverlay').style.display='none';
+        currentSpinClass=null;
+      };
+
+      window.adminLogin=function(){
+        if(document.getElementById('adminpass').value==='Bistroboykott'){
+          localStorage.setItem('admin','true');
+          document.getElementById('adminControls').style.display='block';
+          document.getElementById('enterBtn').disabled=false;
+        } else alert('Falsches Passwort');
+      };
+
+      window.datenZuruecksetzen=function(){
+        if(!confirm('Punkte wirklich zurücksetzen?')) return;
+        db.ref('punkte').remove();
+        localStorage.removeItem('eintraege');
+        localStorage.removeItem('lastTime');
+        alert('Punkte zurückgesetzt.');
+      };
     }
   </script>
 </body>
