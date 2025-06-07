@@ -5,10 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
   <style>
-    /* … (Deine bestehenden Styles unverändert) … */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2em;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      color: #333;
+      max-width: 700px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1em 0;
+    }
+    header img.logo {
+      height: 80px;
+    }
+    .selfie-btn {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #00796b;
+      font-weight: bold;
+      font-size: 1em;
+    }
+    .selfie-btn img {
+      width: 32px;
+      height: 32px;
+      margin-right: 0.5em;
+    }
+    h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
+    #countQuizBar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border:2px solid #00796b;
+      border-radius:6px;
+      padding:.5em 1em;
+      margin-bottom:1em;
+    }
+    #countdown { font-weight:bold; }
+    a.quiz-link {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      text-decoration:none;
+      font-size:1.1em;
+    }
+    a.quiz-link:hover { background:#004d40; }
+    label, select, button, input {
+      display:block;
+      margin:1em auto;
+      font-size:1.1em;
+      text-align:center;
+    }
+    select, input { padding:.4em; }
+    button {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    button:hover { background:#004d40; }
+    button:disabled { background:#ccc!important; cursor:not-allowed!important; }
+    #leaderContainer { margin-top:1em; }
+    #topLeaderContainer {
+      display:flex;
+      gap:1em;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:1em;
+    }
+    #leaderboard, #dailyLeaderboard, #lehrerliste {
+      flex:1;
+      border:2px solid #00796b;
+      padding:1em;
+      border-radius:6px;
+    }
+    #dailyLeaderboard { opacity:.7; background:#f9f9f9; }
+    #statistik { text-align:center; margin-top:1em; }
+    #admin { text-align:center; margin-top:2em; }
+    #modalOverlay {
+      display:none;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      align-items:center; justify-content:center;
+      z-index:1000;
+    }
+    #modalContent {
+      background:#fff;
+      border-radius:8px;
+      padding:1em;
+      text-align:center;
+      max-width:320px;
+      margin:auto;
+    }
+    #svgContainer {
+      position:relative;
+      width:280px; height:280px;
+      margin:auto;
+      padding:5px;
+      border:5px solid #00796b;
+      border-radius:50%;
+      box-sizing:content-box;
+    }
+    #zeiger {
+      position:absolute; top:-30px; left:50%;
+      transform:translateX(-50%);
+      border-left:20px solid transparent;
+      border-right:20px solid transparent;
+      border-top:30px solid #333;
+      z-index:2;
+    }
+    #svgRad {
+      width:100%; height:100%;
+      border-radius:50%;
+      transition:transform 5s ease-out;
+    }
+    #centerCircle { fill:#fff; stroke:#333; stroke-width:4; }
+    #gewinnPopup { display:none; margin-top:1em; }
+    #gewinnPopup button {
+      margin-top:1em;
+      padding:.5em 1.5em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
   </style>
 
-  <!-- Stockwerk-Param-Sperre -->
+  <!-- Stockwerk-Param Sperre (und Back-Navigation) -->
   <script>
     function lockStock() {
       const sp = new URLSearchParams(location.search).get('stock');
@@ -19,16 +154,14 @@
       }
     }
     window.addEventListener('DOMContentLoaded', lockStock);
-    window.addEventListener('pageshow',      lockStock);
+    window.addEventListener('pageshow', lockStock);
   </script>
 </head>
 <body>
   <header>
     <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo" class="logo">
-    <!-- RELATIVER Link zur Selfie-Seite -->
-    <a href="./selfie.html" class="selfie-btn" title="Selfie-Station">
-      <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">
-      Selfie-Station
+    <a href="selfie.html" class="selfie-btn" title="Selfie-Station">
+      <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">Selfie-Station
     </a>
   </header>
 
@@ -36,14 +169,13 @@
 
   <div id="countQuizBar">
     <div id="countdown">⏳ Lade...</div>
-    <!-- RELATIVER Link zum Quiz -->
-    <a href="./quiz.html" class="quiz-link">🚀 Zum täglichen Quiz</a>
+    <a href="quiz.html" class="quiz-link">🚀 Zum täglichen Quiz</a>
   </div>
 
-  <!-- Punkt-Erfassung -->
   <label for="klasse">Wähle deine Klasse:</label>
   <select id="klasse">
     <option value="">--Bitte wählen--</option>
+    <!-- Deine Klassen hier -->
   </select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
@@ -57,7 +189,6 @@
   <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
   <div id="output"></div>
 
-  <!-- Ranglisten -->
   <div id="leaderContainer">
     <div id="topLeaderContainer">
       <div id="leaderboard"></div>
@@ -66,10 +197,8 @@
     <div id="lehrerliste"></div>
   </div>
 
-  <!-- Statistik -->
   <div id="statistik"></div>
 
-  <!-- Adminbereich -->
   <div id="admin">
     <h3>🔐 Adminbereich</h3>
     <input type="password" id="adminpass" placeholder="Passwort">
@@ -79,7 +208,6 @@
     </div>
   </div>
 
-  <!-- Modal Glücksrad -->
   <div id="modalOverlay">
     <div id="modalContent">
       <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
@@ -98,36 +226,33 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs & Vollständige JS-Logik -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
-    // Firebase initialisieren
+    // -- Firebase initialisieren --
     firebase.initializeApp({
-      apiKey:    "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
-      authDomain:"treppenchallenge2025.firebaseapp.com",
-      databaseURL:"https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+      authDomain: "treppenchallenge2025.firebaseapp.com",
+      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "treppenchallenge2025",
-      storageBucket:"treppenchallenge2025.appspot.com",
-      messagingSenderId:"45698338369",
-      appId:     "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+      storageBucket: "treppenchallenge2025.appspot.com",
+      messagingSenderId: "45698338369",
+      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
     });
     const db = firebase.database();
 
     let daten = {}, _lastLeader = null, aktuelleDrehung = 0, currentSpinClass = null;
-
-    const colors = [
-      '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
-      '#3498db','#9b59b6','#34495e','#16a085','#27ae60',
-      '#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b',
-      '#f39c12','#8e44ad','#d35400','#e67e22','#e74c3c'
-    ];
+    const colors = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+                    '#3498db','#9b59b6','#34495e','#16a085','#27ae60',
+                    '#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b',
+                    '#f39c12','#7f8c8d'];
     let segments = [50,25,10,10, ...Array(8).fill(1), ...Array(5).fill(2), ...Array(4).fill(5)];
     segments.sort(() => Math.random() - 0.5);
     const comments = {
-      1:  "💪 Ein Punkt ist besser als kein Punkt!",
-      2:  "🔁 Weiter so – jeder Schritt zählt!",
-      5:  "🚶‍♂️ Das summiert sich – dranbleiben!",
+      1: "💪 Ein Punkt ist besser als kein Punkt!",
+      2: "🔁 Weiter so – jeder Schritt zählt!",
+      5: "🚶‍♂️ Das summiert sich – dranbleiben!",
       10: "🎯 Stark! 10 Bonuspunkte geholt!",
       25: "🏅 WOW – 25 Punkte für dich!",
       50: "👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
@@ -137,7 +262,7 @@
       return new Date().toISOString().slice(0,10);
     }
 
-    // Countdown-Display
+    // Countdown
     const end = new Date("2025-06-18T12:00:00").getTime();
     setInterval(() => {
       const diff = end - Date.now();
@@ -147,23 +272,20 @@
       }
       const days = Math.floor(diff / 86400000),
             hours = new Date(diff).getUTCHours(),
-            mins  = new Date(diff).getUTCMinutes();
+            mins = new Date(diff).getUTCMinutes();
       document.getElementById("countdown").textContent =
         `⏳ Noch ${days} Tage, ${hours} Stunden, ${mins} Minuten`;
     }, 1000);
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Klassenliste initialisieren
-      const kl = [
-        "22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
-        "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
-        "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
-        "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"
-      ];
+      const kl = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
+                  "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
+                  "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
+                  "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"];
       const sel = document.getElementById('klasse');
       kl.forEach(k => sel.append(Object.assign(
         document.createElement('option'),
-        { value: k, textContent: k }
+        { value:k, textContent:k }
       )));
       sel.append(Object.assign(document.createElement('option'),
         { disabled:true, textContent:'─────────────' }
@@ -171,10 +293,8 @@
       sel.append(Object.assign(document.createElement('option'),
         { value:'Lehrerteam', textContent:'👩‍🏫 Lehrerteam' }
       ));
-
       zeichneSVGSegmente();
 
-      // Firebase-Daten abhören
       db.ref('punkte').on('value', snap => {
         daten = snap.val() || {};
         ranglisteAktualisieren();
@@ -188,90 +308,82 @@
       });
     });
 
-    // Punkte eintragen
     function punkteSpeichern() {
       const klasse = document.getElementById('klasse').value;
       const punkte = parseInt(document.getElementById('stockwerk').value, 10);
-      const out = document.getElementById('output');
-      const btn = document.getElementById('enterBtn');
+      const out   = document.getElementById('output');
+      const btn   = document.getElementById('enterBtn');
       if (!klasse || isNaN(punkte)) {
         out.textContent = "Bitte alles auswählen.";
         return;
       }
-      const isAdmin = localStorage.getItem('admin') === 'true';
-      const last = +localStorage.getItem('lastTime') || 0;
-      const now = Date.now();
-      if (!isAdmin && now - last < 20 * 60 * 1000) {
+      const isAdmin = localStorage.getItem('admin')==='true';
+      const last    = +localStorage.getItem('lastTime')||0;
+      const now     = Date.now();
+      if (!isAdmin && now - last < 20*60*1000) {
         out.textContent = "⏳ Bitte warte 20 Minuten.";
         return;
       }
       localStorage.setItem('lastTime', now);
       if (!isAdmin) {
         btn.disabled = true;
-        setTimeout(() => btn.disabled = false, 20 * 60 * 1000);
+        setTimeout(()=>btn.disabled=false, 20*60*1000);
       }
-      const neu = (daten[klasse] || 0) + punkte;
+      const neu = (daten[klasse]||0) + punkte;
       daten[klasse] = neu;
-      db.ref('punkte/' + klasse).set(neu);
-      db.ref('daily/' + getToday() + '/' + klasse)
-        .transaction(v => (v || 0) + punkte);
+      db.ref('punkte/'+klasse).set(neu);
+      db.ref('daily/'+getToday()+'/'+klasse).transaction(v=>(v||0)+punkte);
       out.innerHTML = `<span class="animate-check">✅ ${klasse} hat jetzt ${neu} Punkte.</span>`;
-      let cnt = +localStorage.getItem('eintraege') || 0;
+      let cnt = +localStorage.getItem('eintraege')||0;
       localStorage.setItem('eintraege', ++cnt);
-      if (cnt % 10 === 0) {
+      if (cnt%10===0) {
         currentSpinClass = klasse;
-        document.getElementById('gewinnPopup').style.display = 'none';
+        document.getElementById('gewinnPopup').style.display='none';
         document.getElementById('spinBtn').disabled = false;
         document.getElementById('modalOverlay').style.display = 'flex';
       }
     }
 
-    // Tagesbestenliste
     function renderDailyLeaderboard(data) {
       let html = '<h3>📅 Tagesbestenliste</h3>';
-      Object.entries(data).sort((a,b)=>b[1]-a[1]).forEach(([k,v], i) => {
-        const medal = i == 0 ? '🥇' : i == 1 ? '🥈' : i == 2 ? '🥉' : '';
-        html += `<p>${medal} ${k}: ${v} Punkte</p>`;
+      Object.entries(data).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{
+        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
+        html += `<p>${m} ${k}: ${v} Punkte</p>`;
       });
       document.getElementById('dailyLeaderboard').innerHTML = html;
     }
 
-    // Gesamtrangliste + Lehrerliste
     function ranglisteAktualisieren() {
-      const schueler = [], lehrer = [];
-      Object.entries(daten).forEach(([k,v]) => {
-        if (k === 'Lehrerteam') lehrer.push(v);
-        else schueler.push([k,v]);
+      const sch = [], leh = [];
+      Object.entries(daten).forEach(([k,v])=>{
+        (k==='Lehrerteam'?leh:sch).push([k,v]);
       });
-      schueler.sort((a,b)=>b[1]-a[1]);
+      sch.sort((a,b)=>b[1]-a[1]);
       let html = '<h3>🏆 Rangliste</h3>';
-      schueler.forEach(([k,v], i) => {
-        const medal = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
-        html += `<p class="${i==0?'leader':''}">${medal} ${k}: ${v} Punkte</p>`;
+      sch.forEach(([k,v],i)=>{
+        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
+        html += `<p class="${i==0?'leader':''}">${m} ${k}: ${v} Punkte</p>`;
       });
       document.getElementById('leaderboard').innerHTML = html;
       document.getElementById('lehrerliste').innerHTML =
         `<h3>📚 Lehrpersonen</h3>
-         <p>👨‍🏫 Lehrerteam: ${lehrer[0]||0} Punkte (außer Konkurrenz)</p>`;
+         <p>👨‍🏫 Lehrerteam: ${leh[0]||0} Punkte (außer Konkurrenz)</p>`;
     }
 
-    // Gesamtstatistik
     function statistikAktualisieren() {
-      const total = Object.values(daten).reduce((a,b)=>a+b, 0);
-      const schritte = total * 20;
-      const kcal = (total * 0.17).toFixed(1);
-      const hm   = (total * 3.3).toFixed(1);
+      const total = Object.values(daten).reduce((a,b)=>a+b,0);
+      const schritte = total*20;
+      const kcal     = (total*0.17).toFixed(1);
+      const hm       = (total*3.3).toFixed(1);
       document.getElementById('statistik').textContent =
         `🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
     }
 
-    // Confetti-Animation
     function confetti() {
       const cols = ['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
-      for (let i = 0; i < 150; i++) {
-        const d = document.createElement('div');
-        const sz = 4 + Math.random() * 8;
-        Object.assign(d.style, {
+      for (let i=0; i<150; i++) {
+        const d = document.createElement('div'), sz = 4+Math.random()*8;
+        Object.assign(d.style,{
           position:'fixed', width:`${sz}px`, height:`${sz}px`,
           background: cols[Math.floor(Math.random()*cols.length)],
           borderRadius:'50%', top:`${Math.random()*100}%`, left:`${Math.random()*100}%`,
@@ -280,94 +392,83 @@
         });
         document.body.appendChild(d);
         setTimeout(()=>{
-          d.style.transform = `translateY(-${20+Math.random()*50}px)`;
-          d.style.opacity = '0';
-        }, 50);
-        setTimeout(()=>d.remove(), 1200 + Math.random()*600);
+          d.style.transform=`translateY(-${20+Math.random()*50}px)`;
+          d.style.opacity='0';
+        },50);
+        setTimeout(()=>d.remove(), 1200+Math.random()*600);
       }
     }
 
-    // Glücksrad zeichnen
     function zeichneSVGSegmente() {
-      const g = document.getElementById('radSegmente');
-      const cx = 125, cy = 125, r = 120, n = segments.length;
-      g.innerHTML = '';
-      segments.forEach((w,i) => {
-        const start = 360/n*i, end = start + 360/n;
-        const x1 = cx + r*Math.cos(Math.PI/180*start);
-        const y1 = cy + r*Math.sin(Math.PI/180*start);
-        const x2 = cx + r*Math.cos(Math.PI/180*end);
-        const y2 = cy + r*Math.sin(Math.PI/180*end);
-        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-        path.setAttribute('d', `M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
-        path.setAttribute('fill', colors[i % colors.length]);
-        path.setAttribute('stroke','#fff');
-        path.setAttribute('stroke-width','2');
-        g.appendChild(path);
-        const mid = (start+end)/2;
-        const tx = cx + (r-20)*Math.cos(Math.PI/180*mid);
-        const ty = cy + (r-20)*Math.sin(Math.PI/180*mid);
-        const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-        text.setAttribute('x', tx);
-        text.setAttribute('y', ty);
-        text.setAttribute('transform', `rotate(${mid},${tx},${ty})`);
-        text.setAttribute('text-anchor','middle');
-        text.setAttribute('alignment-baseline','middle');
-        text.setAttribute('font-size','12');
-        text.setAttribute('fill','#fff');
-        text.textContent = w;
-        g.appendChild(text);
+      const g = document.getElementById('radSegmente'), cx=125, cy=125, r=120, n=segments.length;
+      g.innerHTML='';
+      segments.forEach((w,i)=>{
+        const start=360/n*i, end=start+360/n,
+              x1=cx+r*Math.cos(Math.PI/180*start),
+              y1=cy+r*Math.sin(Math.PI/180*start),
+              x2=cx+r*Math.cos(Math.PI/180*end),
+              y2=cy+r*Math.sin(Math.PI/180*end);
+        const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+        p.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+        p.setAttribute('fill',colors[i%colors.length]);
+        p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2');
+        g.appendChild(p);
+        const mid=(start+end)/2,
+              tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
+              ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
+              t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',tx); t.setAttribute('y',ty);
+        t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('alignment-baseline','middle');
+        t.setAttribute('font-size','12'); t.setAttribute('fill','#fff');
+        t.textContent=w; g.appendChild(t);
       });
     }
 
-    function getSegmentIndex(rot, count=20) {
-      let r = rot % 360; if (r < 0) r += 360;
-      const ptr = 270, loc = (ptr - r + 360) % 360;
-      return Math.floor(loc / (360 / count));
+    function getSegmentIndex(rot,count=20){
+      let r = rot%360; if(r<0) r+=360;
+      const ptr=270, loc=(ptr-r+360)%360;
+      return Math.floor(loc/(360/count));
     }
 
-    // Dreh-Logik
-    function dreheGluecksradSVG() {
-      if (!currentSpinClass) return;
-      document.getElementById('spinBtn').disabled = true;
-      document.getElementById('gewinnPopup').style.display = 'none';
-      document.getElementById('gewinnText').innerHTML = '';
-      const n = segments.length, base = 360/n;
-      const spins = 4 + Math.random()*2, offset = Math.random()*base;
-      aktuelleDrehung += spins*360 + offset;
+    function dreheGluecksradSVG(){
+      if(!currentSpinClass) return;
+      document.getElementById('spinBtn').disabled=true;
+      document.getElementById('gewinnPopup').style.display='none';
+      document.getElementById('gewinnText').innerHTML='';
+      const n=segments.length, base=360/n;
+      const spins=4+Math.random()*2, offset=Math.random()*base;
+      aktuelleDrehung += spins*360+offset;
       const wheel = document.getElementById('svgRad');
-      wheel.style.transform = `rotate(${aktuelleDrehung}deg)`;
-      wheel.addEventListener('transitionend', () => {
-        const idx = getSegmentIndex(aktuelleDrehung, n);
-        const gew = segments[idx];
-        const alt = daten[currentSpinClass] || 0;
-        const neu = alt + gew;
-        db.ref('punkte/' + currentSpinClass).set(neu);
-        document.getElementById('gewinnText').innerHTML =
+      wheel.style.transform=`rotate(${aktuelleDrehung}deg)`;
+      wheel.addEventListener('transitionend',()=>{
+        const idx=getSegmentIndex(aktuelleDrehung,n),
+              gew=segments[idx], alt=daten[currentSpinClass]||0, neu=alt+gew;
+        db.ref('punkte/'+currentSpinClass).set(neu);
+        document.getElementById('gewinnText').innerHTML=
           `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
-        document.getElementById('gewinnPopup').style.display = 'block';
-      }, { once:true });
+        document.getElementById('gewinnPopup').style.display='block';
+      },{once:true});
     }
 
-    function hidePopup() {
-      document.getElementById('modalOverlay').style.display = 'none';
+    function hidePopup(){
+      document.getElementById('modalOverlay').style.display='none';
       currentSpinClass = null;
     }
 
-    // Admin-Login
-    function adminLogin() {
-      if (document.getElementById('adminpass').value === 'Bistroboykott') {
+    function adminLogin(){
+      if(document.getElementById('adminpass').value==='Bistroboykott'){
         localStorage.setItem('admin','true');
-        document.getElementById('adminControls').style.display = 'block';
-        document.getElementById('enterBtn').disabled = false;
+        document.getElementById('adminControls').style.display='block';
+        document.getElementById('enterBtn').disabled=false;
       } else {
         alert('Falsches Passwort');
       }
     }
 
-    // Punkte zurücksetzen
-    function datenZuruecksetzen() {
-      if (confirm('Punkte wirklich zurücksetzen?')) {
+    function datenZuruecksetzen(){
+      if(confirm('Punkte wirklich zurücksetzen?')){
         db.ref('punkte').remove();
         localStorage.removeItem('eintraege');
         localStorage.removeItem('lastTime');
@@ -377,4 +478,3 @@
   </script>
 </body>
 </html>
-
