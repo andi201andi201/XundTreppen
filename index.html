@@ -49,25 +49,12 @@
     }
     #countdown { font-weight:bold; }
     a.quiz-link {
-.selfie-btn {
-  display: inline-flex;
-  align-items: center;
-  background: #00796b;
-  color: #fff;
-  padding: .4em .8em;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 1em;
-  transition: background .3s, transform .2s;
-}
-.selfie-btn img {
-  width: 24px;
-  height: 24px;
-  margin-right: 0.5em;
-}
-.selfie-btn:hover {
-  background: #004d40;
-  transform: scale(1.05);
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border-radius:4px;
+      text-decoration:none;
+      font-size:1.1em;
     }
     a.quiz-link:hover { background:#004d40; }
 
@@ -239,6 +226,7 @@
     <option value="4">4. Stock (4 Punkte)</option>
   </select>
   <small id="stockHint" style="display:block;color:#d84315;text-align:center;">
+    (Nur Admin kann hier wählen)
   </small>
 
   <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
@@ -579,4 +567,3 @@
   </script>
 </body>
 </html>
-
