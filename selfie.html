@@ -5,21 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Selfie-Station</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin: 0; padding: 0; }
-    .container { max-width: 700px; margin: 2em auto; background: #fff; border: 3px solid #558b2f; border-radius: 8px; padding: 1em; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-    h1 { color:#558b2f; }
-    /* Video-Vorschau */
-    video {
-      border: 2px solid #558b2f;
-      border-radius: 4px;
-      margin: 1em auto;
-      display: block;
-      object-fit: cover;
-      width: 100%;
-      max-width: 280px;
-      height: auto;
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin:0; padding:0; }
+    .container {
+      max-width:700px;
+      margin:2em auto;
+      background:#fff;
+      border:3px solid #558b2f;
+      border-radius:8px;
+      padding:1em;
+      box-shadow:0 0 10px rgba(0,0,0,0.1);
+      text-align:center;
     }
-    /* Button */
+    h1 { color:#558b2f; margin-bottom:0.5em; }
+    a.back {
+      color:#558b2f;
+      text-decoration:none;
+      display:inline-block;
+      margin-bottom:1em;
+      font-size:1.1em;
+    }
+    a.back:hover { text-decoration:underline; }
+    video {
+      border:2px solid #558b2f;
+      border-radius:4px;
+      margin:1em auto;
+      display:block;
+      object-fit:cover;
+      width:100%;
+      max-width:280px;
+      height:auto;
+    }
     button {
       background:#558b2f;
       color:#fff;
@@ -28,33 +43,21 @@
       border-radius:4px;
       cursor:pointer;
       font-size:1em;
+      margin-top:0.5em;
     }
     button:disabled {
       background:#ccc;
       cursor:not-allowed;
     }
-    button:hover:not(:disabled) {
-      background:#33691e;
-    }
-    /* Statusanzeige */
-    #uploadStatus { margin-top: .5em; font-weight: bold; }
-    /* Galerie-Bilder */
+    button:hover:not(:disabled) { background:#33691e; }
+    #uploadStatus { margin-top:.5em; font-weight:bold; }
     #selfieGallery img {
-      width: 100px;
+      width:100px;
       margin:.5em;
       border:2px solid #00796b;
       border-radius:4px;
-      cursor: pointer;
+      cursor:pointer;
     }
-    /* Zurück-Link */
-    a.back {
-      color:#558b2f;
-      text-decoration:none;
-      display:inline-block;
-      margin-bottom:1em;
-    }
-    a.back:hover { text-decoration:underline; }
-    /* Lightbox */
     #lightboxOverlay {
       display:none;
       position:fixed; top:0; left:0;
@@ -70,17 +73,24 @@
       border-radius:4px;
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <!-- Quiz/Selfie/Back-Link Redirect -->
+  <script>
+    function setupRedirects() {
+      const stock = new URLSearchParams(location.search).get('stock') || '';
+      document.getElementById('backLink').href   = stock ? `index.html?stock=${stock}`   : 'index.html';
+    }
+    window.addEventListener('DOMContentLoaded', setupRedirects);
+  </script>
 </head>
 <body>
   <div class="container">
     <h1>Selfie-Station</h1>
-    <a href="index.html" class="back">« Zurück zur Challenge</a>
+    <a id="backLink" class="back">« Zurück zur Challenge</a>
 
-    <!-- Optimiertes Video-Element für Mobil -->
-    <video id="video" width="280" height="210" autoplay muted playsinline webkit-playsinline></video>
-    <button id="snapBtn">Selfie machen</button>
+    <!-- Video-Vorschau -->
+    <video id="video" autoplay muted playsinline webkit-playsinline></video>
+    <button id="snapBtn" disabled>Selfie machen</button>
     <div id="uploadStatus"></div>
 
     <h2>Alle Selfies heute</h2>
@@ -92,6 +102,8 @@
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
     // Firebase initialisieren
     firebase.initializeApp({
@@ -107,9 +119,10 @@
 
     const video   = document.getElementById('video');
     const snapBtn = document.getElementById('snapBtn');
-    // Button sperren bis Stream bereit
-    snapBtn.disabled = true;
+    const status  = document.getElementById('uploadStatus');
+    const gallery = document.getElementById('selfieGallery');
 
+    // Kamerazugriff
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
@@ -118,19 +131,25 @@
           snapBtn.disabled = false;
         };
       })
-      .catch(err => console.error('Kamera-Fehler:', err));
+      .catch(err => {
+        console.error('Kamera-Fehler:', err);
+        status.textContent = '🚫 Kamera nicht verfügbar';
+      });
 
     snapBtn.onclick = () => {
-      const offscreen = document.createElement('canvas');
-      offscreen.width  = video.videoWidth;
-      offscreen.height = video.videoHeight;
-      offscreen.getContext('2d').drawImage(video, 0, 0);
+      snapBtn.disabled = true;
+      status.textContent = '⏳ Selfie wird aufgenommen…';
 
-      offscreen.toBlob(blob => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      canvas.toBlob(blob => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = reader.result.split(',')[1];
-          document.getElementById('uploadStatus').textContent = '⏳ Upload zu Imgur…';
+          status.textContent = '⏳ Upload zu Imgur…';
           fetch('https://api.imgur.com/3/image', {
             method: 'POST',
             headers: {
@@ -147,12 +166,15 @@
             return db.ref(`selfies/${today}`).push(url);
           })
           .then(() => {
-            document.getElementById('uploadStatus').textContent = '✅ Hochgeladen via Imgur';
+            status.textContent = '✅ Hochgeladen';
             loadGallery();
           })
           .catch(err => {
             console.error('Upload-Fehler:', err);
-            document.getElementById('uploadStatus').textContent = '❌ Upload-Fehler';
+            status.textContent = '❌ Upload fehlgeschlagen';
+          })
+          .finally(() => {
+            snapBtn.disabled = false;
           });
         };
         reader.readAsDataURL(blob);
@@ -160,7 +182,6 @@
     };
 
     function loadGallery() {
-      const gallery = document.getElementById('selfieGallery');
       gallery.innerHTML = '';
       const today = new Date().toISOString().slice(0,10);
       db.ref(`selfies/${today}`).orderByKey().once('value')
@@ -176,18 +197,16 @@
     }
 
     function showLightbox(src) {
-      const overlay = document.getElementById('lightboxOverlay');
       document.getElementById('lightboxImage').src = src;
-      overlay.style.display = 'flex';
+      document.getElementById('lightboxOverlay').style.display = 'flex';
     }
 
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
-    // Erste Galerie-Anzeige
+    // Erstes Laden der Galerie
     loadGallery();
   </script>
 </body>
 </html>
-
