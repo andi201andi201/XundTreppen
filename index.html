@@ -478,18 +478,30 @@
       }
     }
 document.addEventListener('DOMContentLoaded', () => {
-  const sprueche = [
-    "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃",
-    "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈",
-    "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪",
-    "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨",
-    "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄",
-    "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️",
-    "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋",
-    "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀",
-    "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬",
-    "Heute gelingt dir jeder Schritt besonders elegant! 🕺"
-  ];
+const sprueche = [
+  "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃",
+  "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈",
+  "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪",
+  "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨",
+  "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄",
+  "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️",
+  "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋",
+  "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀",
+  "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬",
+  "Heute gelingt dir jeder Schritt besonders elegant! 🕺",
+
+  // Neue Sprüche:
+  "Die Stufen haben heute Marathon-Stimmung – lauf, Forrest, lauf! 🏃‍♂️💨",
+  "Achtung: Die Stufen könnten dich zu einem spontanen Tanz animieren. 🕺💃",
+  "Die Treppen flüstern: ‚Gib uns mehr Punkte!‘ 😏",
+  "Dein rechter Fuß hat heute Vorrang – lass ihn den Tanz anführen. 🦶🎶",
+  "Die Treppen schicken dir eine Power-Up-Meldung: +100 Motivation! ⚡️",
+  "Heute hörst du vielleicht das Flüstern, das dich antreibt: ‚Noch eine Stufe!‘ 👂🔊",
+  "Die Treppenbonus-Götter sind dir heute wohlgesinnt – freu dich auf Extra-Konfetti! 🎊",
+  "Stell dir vor, jede Stufe ist ein goldener Stern – du sammelst Galaxien! 🌟",
+  "Deine Treppenreise wird heute episch – halte Ausschau nach Fanfaren! 🎺",
+  "Die Stufen tanzen vor Freude, wenn du sie erklimmst – gib ihnen eine Show! 🎉"
+];
 
   const orakelDiv = document.getElementById('orakel');
   const zufallSpruch = sprueche[Math.floor(Math.random() * sprueche.length)];
