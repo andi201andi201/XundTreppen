@@ -510,19 +510,6 @@ const sprueche = [
     orakelDiv.innerHTML = `🔮 ${zufallSpruch}`;
   }, 1000);
 });
-      // param aus URL holen
-  function getStockParam() {
-    return new URLSearchParams(window.location.search).get('stock') || '';
-  }
-
-  // Quiz- und Selfie-Links anpassen
-  document.addEventListener('DOMContentLoaded', () => {
-    const stock = getStockParam();
-    if (stock) {
-      document.getElementById('quizLink').href = `quiz.html?stock=${stock}`;
-      document.getElementById('selfieLink').href = `selfie.html?stock=${stock}`;
-    }
-
   </script>
 </body>
 </html>
