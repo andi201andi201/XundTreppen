@@ -15,7 +15,7 @@
       // Wenn kein gültiger stock-Param gesetzt ist, Passwort abfragen
       if (!allowed.includes(sp)) {
         const pw = prompt('Passwort für Hauptseite:');
-        if (pw !== 'DEIN_GEHEIMES_PASSWORT') {
+        if (pw !== 'Bistroboykott') {
           // Bei falschem Passwort: Inhalt ersetzen
           document.documentElement.innerHTML = `
             <body style="font-family:sans-serif;text-align:center;padding:2em;">
