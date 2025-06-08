@@ -181,7 +181,10 @@
   </select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
-  <select id="stockwerk">
+  <select id="stockwerk" disabled>
+  <small id="stockHint" style="display:block; text-align:center; color:#d84315;">
+  (Nur Admin kann hier wählen)
+  </small>
     <option value="">-- Bitte wählen --</option>
     <option value="1">1. Stock (1 Punkt)</option>
     <option value="2">2. Stock (2 Punkte)</option>
@@ -468,6 +471,18 @@
         alert('Falsches Passwort');
       }
     }
+function adminLogin(){
+  if (document.getElementById('adminpass').value === 'Bistroboykott') {
+    localStorage.setItem('admin', 'true');
+    document.getElementById('adminControls').style.display = 'block';
+
+    // Neu: Stockwerk freischalten
+    document.getElementById('stockwerk').disabled = false;
+    document.getElementById('stockHint').style.display = 'none';
+  } else {
+    alert('Falsches Passwort');
+  }
+}
 
     function datenZuruecksetzen(){
       if(confirm('Punkte wirklich zurücksetzen?')){
