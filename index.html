@@ -38,6 +38,15 @@
       margin-right: 0.5em;
     }
     h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
+    #orakel {
+      text-align:center;
+      margin:1em auto;
+      padding:10px;
+      border:2px dashed #ff9800;
+      border-radius:8px;
+      background:#fff8e1;
+      color:#795548;
+    }
     #countQuizBar {
       display:flex;
       justify-content:space-between;
@@ -46,6 +55,7 @@
       border-radius:6px;
       padding:.5em 1em;
       margin-bottom:1em;
+      flex-wrap:wrap;
     }
     #countdown { font-weight:bold; }
     a.quiz-link {
@@ -64,7 +74,7 @@
       font-size:1.1em;
       text-align:center;
     }
-    select, input { padding:.4em; }
+    select, input { padding:.4em; width:80%; }
     button {
       padding:.4em 1em;
       background:#00796b;
@@ -141,43 +151,65 @@
       border-radius:4px;
       cursor:pointer;
     }
+    .animate-check { animation:bounce .6s; display:inline-block; }
+    @keyframes bounce { 0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)} }
+    .leader { font-weight:bold; color:gold; animation:glow 1s infinite alternate; }
+    @keyframes glow { from{text-shadow:0 0 10px gold} to{text-shadow:0 0 20px orange} }
+    .icecream {
+      position: fixed; bottom: -50px; font-size:2rem;
+      opacity:0.8;
+      animation: riseIceCream 2s ease-out forwards;
+      pointer-events:none; will-change: transform,opacity;
+    }
+    @keyframes riseIceCream {
+      0%   { transform: translateY(0) scale(1); opacity:0.8; }
+      50%  { opacity:1; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity:0; }
+    }
   </style>
 
-  <!-- Stockwerk-Param Sperre (und Back-Navigation) -->
+  <!-- Stockwerk-Param Sperre + Quiz/Selfie-Link Redirect -->
   <script>
-    function lockStock() {
+    function lockStock(){
       const sp = new URLSearchParams(location.search).get('stock');
-      if (['1','2','3','4'].includes(sp)) {
-        const el = document.getElementById('stockwerk');
-        el.value = sp;
-        el.disabled = true;
+      if(['1','2','3','4'].includes(sp)){
+        const el=document.getElementById('stockwerk');
+        el.value=sp; el.disabled=true;
       }
     }
-    window.addEventListener('DOMContentLoaded', lockStock);
+    function setupRedirects(){
+      const stock=new URLSearchParams(location.search).get('stock')||'';
+      document.getElementById('quizLink').href   = stock?`quiz.html?stock=${stock}`:'quiz.html';
+      document.getElementById('selfieLink').href = stock?`selfie.html?stock=${stock}`:'selfie.html';
+      document.getElementById('backLink')?.setAttribute('href', stock?`index.html?stock=${stock}`:'index.html');
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      lockStock();
+      setupRedirects();
+    });
     window.addEventListener('pageshow', lockStock);
   </script>
 </head>
 <body>
   <header>
     <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo" class="logo">
-    <a href="selfie.html" class="selfie-btn" title="Selfie-Station">
+    <a id="selfieLink" class="selfie-btn" title="Selfie-Station">
       <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">Selfie-Station
     </a>
   </header>
 
   <h1>Treppen-Challenge</h1>
-<div id="orakel" style="text-align:center; margin:1em auto; padding:10px; border:2px dashed #ff9800; border-radius:8px; background:#fff8e1; color:#795548;">
-  🔮 Lade das Treppen-Orakel...
-</div>
+  <div id="orakel">🔮 Lade das Treppen-Orakel...</div>
+
   <div id="countQuizBar">
     <div id="countdown">⏳ Lade...</div>
-    <a href="quiz.html" class="quiz-link">🚀 Zum täglichen Quiz</a>
+    <a id="quizLink" class="quiz-link">🚀 Zum täglichen Quiz</a>
+    <div id="rewardIceCream"></div>
   </div>
 
   <label for="klasse">Wähle deine Klasse:</label>
   <select id="klasse">
     <option value="">--Bitte wählen--</option>
-    <!-- Deine Klassen hier -->
   </select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
@@ -188,6 +220,10 @@
     <option value="3">3. Stock (3 Punkte)</option>
     <option value="4">4. Stock (4 Punkte)</option>
   </select>
+  <small id="stockHint" style="display:block;color:#d84315;text-align:center;">
+    (Nur Admin kann hier wählen)
+  </small>
+
   <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
   <div id="output"></div>
 
@@ -215,266 +251,191 @@
       <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
       <div id="svgContainer">
         <div id="zeiger"></div>
-        <svg id="svgRad" viewBox="0 0 250 250">
-          <g id="radSegmente"></g>
-          <circle id="centerCircle" cx="125" cy="125" r="40"/>
-        </svg>
+        <svg id="svgRad" viewBox="0 0 250 250"><g id="radSegmente"></g><circle id="centerCircle" cx="125" cy="125" r="40"/></svg>
       </div>
       <button id="spinBtn" onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
-      <div id="gewinnPopup">
-        <div id="gewinnText"></div>
-        <button onclick="hidePopup()">OK</button>
-      </div>
+      <div id="gewinnPopup"><div id="gewinnText"></div><button onclick="hidePopup()">OK</button></div>
     </div>
   </div>
 
-  <!-- Firebase SDKs & Vollständige JS-Logik -->
+  <a id="backLink" class="back" style="display:none;">« Zurück zur Challenge</a>
+
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const stock = new URLSearchParams(window.location.search).get('stock') || '';
-      // Quiz-Link anpassen
-      const ql = document.getElementById('quizLink');
-      ql.href = stock ? `quiz.html?stock=${stock}` : 'quiz.html';
-      // Selfie-Link anpassen
-      const sl = document.getElementById('selfieLink');
-      sl.href = stock ? `selfie.html?stock=${stock}` : 'selfie.html';
-    // -- Firebase initialisieren --
+    // Firebase init
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
-      authDomain: "treppenchallenge2025.firebaseapp.com",
-      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "treppenchallenge2025",
-      storageBucket: "treppenchallenge2025.appspot.com",
-      messagingSenderId: "45698338369",
-      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+      authDomain:"treppenchallenge2025.firebaseapp.com",
+      databaseURL:"https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId:"treppenchallenge2025",
+      storageBucket:"treppenchallenge2025.appspot.com",
+      messagingSenderId:"45698338369",
+      appId:"1:45698338369:web:4aa2c212f2cbea0f0b00c0"
     });
     const db = firebase.database();
 
-    let daten = {}, _lastLeader = null, aktuelleDrehung = 0, currentSpinClass = null;
-    const colors = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
-                    '#3498db','#9b59b6','#34495e','#16a085','#27ae60',
-                    '#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b',
-                    '#f39c12','#7f8c8d'];
-    let segments = [50,25,10,10, ...Array(8).fill(1), ...Array(5).fill(2), ...Array(4).fill(5)];
-    segments.sort(() => Math.random() - 0.5);
-    const comments = {
-      1: "💪 Ein Punkt ist besser als kein Punkt!",
-      2: "🔁 Weiter so – jeder Schritt zählt!",
-      5: "🚶‍♂️ Das summiert sich – dranbleiben!",
-      10: "🎯 Stark! 10 Bonuspunkte geholt!",
-      25: "🏅 WOW – 25 Punkte für dich!",
-      50: "👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
-    };
+    let daten={}, _lastLeader=null, aktuelleDrehung=0, currentSpinClass=null;
+    const colors=[ '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#34495e','#16a085','#27ae60','#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b','#f39c12','#7f8c8d' ];
+    let segments=[50,25,10,10,...Array(8).fill(1),...Array(5).fill(2),...Array(4).fill(5)];
+    segments.sort(()=>Math.random()-0.5);
+    const comments={1:"💪 Ein Punkt ist besser als kein Punkt!",2:"🔁 Weiter so – jeder Schritt zählt!",5:"🚶‍♂️ Das summiert sich – dranbleiben!",10:"🎯 Stark! 10 Bonuspunkte geholt!",25:"🏅 WOW – 25 Punkte für dich!",50:"👑 UNGLAUBLICH! 50 Punkte! Du Legende!"};
 
-    function getToday() {
-      return new Date().toISOString().slice(0,10);
-    }
+    function getToday(){ return new Date().toISOString().slice(0,10); }
 
     // Countdown
-    const end = new Date("2025-06-18T12:00:00").getTime();
-    setInterval(() => {
-      const diff = end - Date.now();
-      if (diff < 0) {
-        document.getElementById("countdown").textContent = "🏁 Challenge beendet!";
-        return;
-      }
-      const days = Math.floor(diff / 86400000),
-            hours = new Date(diff).getUTCHours(),
-            mins = new Date(diff).getUTCMinutes();
-      document.getElementById("countdown").textContent =
-        `⏳ Noch ${days} Tage, ${hours} Stunden, ${mins} Minuten`;
-    }, 1000);
+    (function initCountdown(){
+      const end=new Date("2025-06-18T12:00:00").getTime();
+      setInterval(()=>{
+        const diff=end-Date.now();
+        if(diff<0){
+          document.getElementById("countdown").textContent="🏁 Challenge beendet!";
+          return;
+        }
+        const days=Math.floor(diff/86400000),
+              hrs=new Date(diff).getUTCHours(),
+              min=new Date(diff).getUTCMinutes();
+        document.getElementById("countdown").textContent=`⏳ Noch ${days} Tage, ${hrs} Stunden, ${min} Minuten`;
+      },1000);
+    })();
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const kl = ["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
-                  "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
-                  "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
-                  "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"];
-      const sel = document.getElementById('klasse');
-      kl.forEach(k => sel.append(Object.assign(
-        document.createElement('option'),
-        { value:k, textContent:k }
-      )));
-      sel.append(Object.assign(document.createElement('option'),
-        { disabled:true, textContent:'─────────────' }
-      ));
-      sel.append(Object.assign(document.createElement('option'),
-        { value:'Lehrerteam', textContent:'👩‍🏫 Lehrerteam' }
-      ));
+    document.addEventListener('DOMContentLoaded',()=>{
+      // Klassenliste
+      const kl=["22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4","22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1","24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3","24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"];
+      const sel=document.getElementById('klasse');
+      kl.forEach(k=>sel.append(new Option(k,k)));
+      sel.append(Object.assign(new Option('─────────────',''),{disabled:true}));
+      sel.append(new Option('👩‍🏫 Lehrerteam','Lehrerteam'));
+
+      // Orakel
+      const sprueche=[ "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃", "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈", "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪", "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨", "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄", "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️", "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋", "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀", "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬", "Heute gelingt dir jeder Schritt besonders elegant! 🕺" ];
+      setTimeout(()=>{
+        document.getElementById('orakel').textContent='🔮 '+sprueche[Math.floor(Math.random()*sprueche.length)];
+      },1000);
+
       zeichneSVGSegmente();
 
-      db.ref('punkte').on('value', snap => {
-        daten = snap.val() || {};
+      // Datenlistener
+      db.ref('punkte').on('value',snap=>{
+        daten=snap.val()||{};
         ranglisteAktualisieren();
         statistikAktualisieren();
-        const lead = Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
-        if (_lastLeader && lead !== _lastLeader) confetti();
-        _lastLeader = lead;
+        const lead=Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
+        if(_lastLeader&&lead!==_lastLeader){ confetti(); }
+        _lastLeader=lead;
       });
-      db.ref('daily/' + getToday()).on('value', snap => {
-        renderDailyLeaderboard(snap.val() || {});
+      db.ref('daily/'+getToday()).on('value',snap=>{
+        renderDailyLeaderboard(snap.val()||{});
       });
     });
 
-    function punkteSpeichern() {
-      const klasse = document.getElementById('klasse').value;
-      const punkte = parseInt(document.getElementById('stockwerk').value, 10);
-      const out   = document.getElementById('output');
-      const btn   = document.getElementById('enterBtn');
-      if (!klasse || isNaN(punkte)) {
-        out.textContent = "Bitte alles auswählen.";
-        return;
-      }
-      const isAdmin = localStorage.getItem('admin')==='true';
-      const last    = +localStorage.getItem('lastTime')||0;
-      const now     = Date.now();
-      if (!isAdmin && now - last < 20*60*1000) {
-        out.textContent = "⏳ Bitte warte 20 Minuten.";
-        return;
-      }
-      localStorage.setItem('lastTime', now);
-      if (!isAdmin) {
-        btn.disabled = true;
-        setTimeout(()=>btn.disabled=false, 20*60*1000);
-      }
-      const neu = (daten[klasse]||0) + punkte;
-      daten[klasse] = neu;
-      db.ref('punkte/'+klasse).set(neu);
-      db.ref('daily/'+getToday()+'/'+klasse).transaction(v=>(v||0)+punkte);
-      out.innerHTML = `<span class="animate-check">✅ ${klasse} hat jetzt ${neu} Punkte.</span>`;
-      let cnt = +localStorage.getItem('eintraege')||0;
-      localStorage.setItem('eintraege', ++cnt);
-      if (cnt%10===0) {
-        currentSpinClass = klasse;
-        document.getElementById('gewinnPopup').style.display='none';
-        document.getElementById('spinBtn').disabled = false;
-        document.getElementById('modalOverlay').style.display = 'flex';
-      }
+    function punkteSpeichern(){
+      const k=document.getElementById('klasse').value;
+      const s=parseInt(document.getElementById('stockwerk').value,10);
+      const out=document.getElementById('output'), btn=document.getElementById('enterBtn');
+      if(!k||isNaN(s)){ out.textContent="Bitte alles auswählen."; return; }
+      const isAdmin=localStorage.getItem('admin')==='true', last=+localStorage.getItem('lastTime')||0, now=Date.now();
+      if(!isAdmin && now-last<20*60*1000){ out.textContent="⏳ Bitte warte 20 Minuten."; return; }
+      localStorage.setItem('lastTime',now);
+      if(!isAdmin){ btn.disabled=true; setTimeout(()=>btn.disabled=false,20*60*1000); }
+      const neu=(daten[k]||0)+s; daten[k]=neu;
+      db.ref('punkte/'+k).set(neu);
+      db.ref('daily/'+getToday()+'/'+k).transaction(v=>(v||0)+s);
+      out.innerHTML=`<span class="animate-check">✅ ${k} hat jetzt ${neu} Punkte.</span>`;
+      let cnt=+localStorage.getItem('eintraege')||0; localStorage.setItem('eintraege',++cnt);
+      if(cnt%10===0){ currentSpinClass=k; document.getElementById('modalOverlay').style.display='flex'; document.getElementById('spinBtn').disabled=false; }
     }
 
-    function renderDailyLeaderboard(data) {
-      let html = '<h3>📅 Tagesbestenliste</h3>';
+    function renderDailyLeaderboard(data){
+      let html='<h3>📅 Tagesbestenliste</h3>';
       Object.entries(data).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{
-        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
-        html += `<p>${m} ${k}: ${v} Punkte</p>`;
+        const m=i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
+        html+=`<p>${m} ${k}: ${v} Punkte</p>`;
       });
-      document.getElementById('dailyLeaderboard').innerHTML = html;
+      document.getElementById('dailyLeaderboard').innerHTML=html;
     }
 
-    function ranglisteAktualisieren() {
-      const sch = [], leh = [];
+    function ranglisteAktualisieren(){
+      const sch=[], leh=[];
       Object.entries(daten).forEach(([k,v])=>{
         (k==='Lehrerteam'?leh:sch).push([k,v]);
       });
       sch.sort((a,b)=>b[1]-a[1]);
-      let html = '<h3>🏆 Rangliste</h3>';
+      let html='<h3>🏆 Rangliste</h3>';
       sch.forEach(([k,v],i)=>{
-        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
-        html += `<p class="${i==0?'leader':''}">${m} ${k}: ${v} Punkte</p>`;
+        const m=i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
+        html+=`<p class="${i==0?'leader':''}">${m} ${k}: ${v} Punkte</p>`;
       });
-      document.getElementById('leaderboard').innerHTML = html;
-      document.getElementById('lehrerliste').innerHTML =
-        `<h3>📚 Lehrpersonen</h3>
-         <p>👨‍🏫 Lehrerteam: ${leh[0]||0} Punkte (außer Konkurrenz)</p>`;
+      document.getElementById('leaderboard').innerHTML=html;
+      document.getElementById('lehrerliste').innerHTML=`<h3>📚 Lehrpersonen</h3><p>👨‍🏫 Lehrerteam: ${leh[0]?.[1]||0} Punkte (außer Konkurrenz)</p>`;
     }
 
-    function statistikAktualisieren() {
-      const total = Object.values(daten).reduce((a,b)=>a+b,0);
-      const schritte = total*20;
-      const kcal     = (total*0.17).toFixed(1);
-      const hm       = (total*3.3).toFixed(1);
-      document.getElementById('statistik').textContent =
-        `🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
+    function statistikAktualisieren(){
+      const total=Object.values(daten).reduce((a,b)=>a+b,0),
+            schritte=total*20,
+            kcal=(total*0.17).toFixed(1),
+            hm=(total*3.3).toFixed(1);
+      document.getElementById('statistik').textContent=`🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
     }
 
-    function confetti() {
-      const cols = ['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
-      for (let i=0; i<150; i++) {
-        const d = document.createElement('div'), sz = 4+Math.random()*8;
-        Object.assign(d.style,{
-          position:'fixed', width:`${sz}px`, height:`${sz}px`,
-          background: cols[Math.floor(Math.random()*cols.length)],
-          borderRadius:'50%', top:`${Math.random()*100}%`, left:`${Math.random()*100}%`,
-          pointerEvents:'none', opacity:'1', zIndex:1000,
-          transition:'opacity 1s ease-out,transform 1s ease-out'
-        });
+    function confetti(){
+      const cols=['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
+      for(let i=0;i<150;i++){
+        const d=document.createElement('div'), sz=4+Math.random()*8;
+        Object.assign(d.style,{position:'fixed',width:`${sz}px`,height:`${sz}px`,background:cols[Math.floor(Math.random()*cols.length)],borderRadius:'50%',top:`${Math.random()*100}%`,left:`${Math.random()*100}%`,pointerEvents:'none',opacity:'1',zIndex:1000,transition:'opacity 1s ease-out,transform 1s ease-out'});
         document.body.appendChild(d);
-        setTimeout(()=>{
-          d.style.transform=`translateY(-${20+Math.random()*50}px)`;
-          d.style.opacity='0';
-        },50);
-        setTimeout(()=>d.remove(), 1200+Math.random()*600);
+        setTimeout(()=>{d.style.transform=`translateY(-${20+Math.random()*50}px)`;d.style.opacity='0';},50);
+        setTimeout(()=>d.remove(),1200+Math.random()*600);
       }
     }
 
-    function zeichneSVGSegmente() {
-      const g = document.getElementById('radSegmente'), cx=125, cy=125, r=120, n=segments.length;
-      g.innerHTML='';
+    function zeichneSVGSegmente(){
+      const g=document.getElementById('radSegmente'),cx=125,cy=125,r=120,n=segments.length; g.innerHTML='';
       segments.forEach((w,i)=>{
-        const start=360/n*i, end=start+360/n,
+        const start=360/n*i,end=start+360/n,
               x1=cx+r*Math.cos(Math.PI/180*start),
               y1=cy+r*Math.sin(Math.PI/180*start),
               x2=cx+r*Math.cos(Math.PI/180*end),
               y2=cy+r*Math.sin(Math.PI/180*end);
-        const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+        const p=document.createElementNS('http://www.w3.org/2000/svg','path');
         p.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
-        p.setAttribute('fill',colors[i%colors.length]);
-        p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2');
-        g.appendChild(p);
-        const mid=(start+end)/2,
-              tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
-              ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
-              t=document.createElementNS('http://www.w3.org/2000/svg','text');
-        t.setAttribute('x',tx); t.setAttribute('y',ty);
-        t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
-        t.setAttribute('text-anchor','middle');
-        t.setAttribute('alignment-baseline','middle');
-        t.setAttribute('font-size','12'); t.setAttribute('fill','#fff');
-        t.textContent=w; g.appendChild(t);
+        p.setAttribute('fill',colors[i%colors.length]); p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2'); g.appendChild(p);
+        const mid=(start+end)/2,tx=cx+(r-20)*Math.cos(Math.PI/180*mid),ty=cy+(r-20)*Math.sin(Math.PI/180*mid);
+        const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',tx);t.setAttribute('y',ty);t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
+        t.setAttribute('text-anchor','middle');t.setAttribute('alignment-baseline','middle');t.setAttribute('font-size','12');t.setAttribute('fill','#fff');t.textContent=w;g.appendChild(t);
       });
     }
 
     function getSegmentIndex(rot,count=20){
-      let r = rot%360; if(r<0) r+=360;
-      const ptr=270, loc=(ptr-r+360)%360;
-      return Math.floor(loc/(360/count));
+      let r=rot%360; if(r<0) r+=360; const ptr=270,loc=(ptr-r+360)%360; return Math.floor(loc/(360/count));
     }
 
     function dreheGluecksradSVG(){
       if(!currentSpinClass) return;
-      document.getElementById('spinBtn').disabled=true;
-      document.getElementById('gewinnPopup').style.display='none';
-      document.getElementById('gewinnText').innerHTML='';
-      const n=segments.length, base=360/n;
-      const spins=4+Math.random()*2, offset=Math.random()*base;
-      aktuelleDrehung += spins*360+offset;
-      const wheel = document.getElementById('svgRad');
-      wheel.style.transform=`rotate(${aktuelleDrehung}deg)`;
-      wheel.addEventListener('transitionend',()=>{
-        const idx=getSegmentIndex(aktuelleDrehung,n),
-              gew=segments[idx], alt=daten[currentSpinClass]||0, neu=alt+gew;
+      document.getElementById('spinBtn').disabled=true;document.getElementById('gewinnPopup').style.display='none';document.getElementById('gewinnText').innerHTML='';
+      const n=segments.length,base=360/n,spins=4+Math.random()*2,offset=Math.random()*base;
+      aktuelleDrehung+=spins*360+offset;
+      const w=document.getElementById('svgRad');w.style.transform=`rotate(${aktuelleDrehung}deg)`;
+      w.addEventListener('transitionend',()=>{
+        const idx=getSegmentIndex(aktuelleDrehung,n),gew=segments[idx],alt=daten[currentSpinClass]||0,neu=alt+gew;
         db.ref('punkte/'+currentSpinClass).set(neu);
-        document.getElementById('gewinnText').innerHTML=
-          `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
+        document.getElementById('gewinnText').innerHTML=`${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
         document.getElementById('gewinnPopup').style.display='block';
       },{once:true});
     }
 
-    function hidePopup(){
-      document.getElementById('modalOverlay').style.display='none';
-      currentSpinClass = null;
-    }
+    function hidePopup(){ document.getElementById('modalOverlay').style.display='none'; currentSpinClass=null; }
 
     function adminLogin(){
       if(document.getElementById('adminpass').value==='Bistroboykott'){
         localStorage.setItem('admin','true');
         document.getElementById('adminControls').style.display='block';
-        document.getElementById('enterBtn').disabled=false;
-      } else {
-        alert('Falsches Passwort');
-      }
+        document.getElementById('stockHint').style.display='none';
+        document.getElementById('stockwerk').disabled=false;
+      } else alert('Falsches Passwort');
     }
 
     function datenZuruecksetzen(){
@@ -485,40 +446,25 @@
         alert('Punkte zurückgesetzt.');
       }
     }
-document.addEventListener('DOMContentLoaded', () => {
-const sprueche = [
-  "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃",
-  "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈",
-  "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪",
-  "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨",
-  "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄",
-  "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️",
-  "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋",
-  "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀",
-  "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬",
-  "Heute gelingt dir jeder Schritt besonders elegant! 🕺",
 
-  // Neue Sprüche:
-  "Die Stufen haben heute Marathon-Stimmung – lauf, Forrest, lauf! 🏃‍♂️💨",
-  "Achtung: Die Stufen könnten dich zu einem spontanen Tanz animieren. 🕺💃",
-  "Die Treppen flüstern: ‚Gib uns mehr Punkte!‘ 😏",
-  "Dein rechter Fuß hat heute Vorrang – lass ihn den Tanz anführen. 🦶🎶",
-  "Die Treppen schicken dir eine Power-Up-Meldung: +100 Motivation! ⚡️",
-  "Heute hörst du vielleicht das Flüstern, das dich antreibt: ‚Noch eine Stufe!‘ 👂🔊",
-  "Die Treppenbonus-Götter sind dir heute wohlgesinnt – freu dich auf Extra-Konfetti! 🎊",
-  "Stell dir vor, jede Stufe ist ein goldener Stern – du sammelst Galaxien! 🌟",
-  "Deine Treppenreise wird heute episch – halte Ausschau nach Fanfaren! 🎺",
-  "Die Stufen tanzen vor Freude, wenn du sie erklimmst – gib ihnen eine Show! 🎉"
-];
-
-  const orakelDiv = document.getElementById('orakel');
-  const zufallSpruch = sprueche[Math.floor(Math.random() * sprueche.length)];
-
-  setTimeout(() => {
-    orakelDiv.innerHTML = `🔮 ${zufallSpruch}`;
-  }, 1000);
-});
-
+    document.addEventListener('DOMContentLoaded',()=>{
+      // Reward-Glace wenn Führung wechselt
+      db.ref('punkte').on('value',snap=>{
+        const lead=Object.entries(snap.val()||{}).sort((a,b)=>b[1]-a[1])[0]?.[0];
+        if(_lastLeader && lead!==_lastLeader){
+          // Eis aufsteigen lassen
+          for(let i=0;i<6;i++){
+            const ico=document.createElement('div');
+            ico.textContent='🍦';ico.className='icecream';
+            ico.style.left=10+Math.random()*80+'vw';
+            ico.style.animationDelay=(i*0.1)+'s';
+            document.body.appendChild(ico);
+            ico.addEventListener('animationend',()=>ico.remove());
+          }
+        }
+        _lastLeader=lead;
+      });
+    });
   </script>
 </body>
 </html>
