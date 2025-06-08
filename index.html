@@ -8,22 +8,18 @@
   <!-- Passwort- / Stock-Param-Check -->
   <script>
     (function(){
-      // Erlaubte Stock-Parameter
       const allowed = ['1','2','3','4'];
-      const sp = new URLSearchParams(window.location.search).get('stock');
-
-      // Wenn kein gültiger stock-Param gesetzt ist, Passwort abfragen
+      const sp = new URLSearchParams(location.search).get('stock');
+      // wenn stock nicht gültig, Passwort fragen
       if (!allowed.includes(sp)) {
         const pw = prompt('Passwort für Hauptseite:');
         if (pw !== 'Bistroboykott') {
-          // Bei falschem Passwort: Inhalt ersetzen
-          document.documentElement.innerHTML = `
-            <body style="font-family:sans-serif;text-align:center;padding:2em;">
-              <h1>Zugriff verweigert</h1>
-              <p>Falsches Passwort oder nicht berechtigt.</p>
-            </body>
-          `;
+          alert('❌ Falsches Passwort!');
+          // redirect zurück oder auf spez. Login-Seite
+          window.location.href = 'index.html'; 
+          // oder: history.back();
         }
+        // wenn korrekt, einfach weiter laden
       }
     })();
   </script>
@@ -123,6 +119,7 @@
 
     /* -------- Admin -------- */
     #admin { text-align:center; margin-top:2em; }
+
     /* -------- Glücksrad Modal -------- */
     #modalOverlay {
       display:none;
