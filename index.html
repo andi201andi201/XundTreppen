@@ -44,96 +44,6 @@
     }
     header img.logo { height: 80px; }
     h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
-  /* ---- Selfie-Station Header ---- */
-.main-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1em 1.5em;
-  background: #ffffffcc;          /* leicht transparentes Weiß */
-  backdrop-filter: blur(10px);    /* milder Blur-Effekt dahinter */
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 1em;
-  z-index: 10;
-}
-
-.logo {
-  height: 60px;
-  transition: transform .3s;
-}
-.logo:hover {
-  transform: rotate(-5deg) scale(1.05);
-}
-
-/* runder, schwebender Selfie-Button */
-.selfie-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  background: linear-gradient(135deg, #00796b, #004d40);
-  color: #fff;
-  padding: .6em 1em;
-  border: none;
-  border-radius: 999px;
-  font-size: 1em;
-  font-weight: 600;
-  cursor: pointer;
-  overflow: hidden;
-  transition: transform .2s, box-shadow .2s;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.selfie-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-}
-
-/* Puls-Animation fürs Icon */
-.selfie-btn .camera-icon {
-  display: inline-block;
-  margin-right: .5em;
-  font-size: 1.3em;
-  animation: pulse 2s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.2); }
-}
-
-/* Klick-Ripple */
-.selfie-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 10px; height: 10px;
-  background: rgba(255,255,255,0.4);
-  border-radius: 50%;
-  transform: translate(-50%,-50%) scale(1);
-  opacity: 0;
-  transition: transform .6s ease-out, opacity .6s ease-out;
-}
-.selfie-btn:active::after {
-  transform: translate(-50%,-50%) scale(15);
-  opacity: 0;
-  transition: transform .3s ease-out, opacity .3s ease-out;
-}
-
-/* Kleines Tooltip-Label */
-.selfie-btn:hover:before {
-  content: "Mach ein Selfie!";
-  position: absolute;
-  bottom: calc(100% + .5em);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #004d40;
-  color: #fff;
-  padding: .3em .6em;
-  border-radius: 4px;
-  font-size: .9em;
-  white-space: nowrap;
-  opacity: .9;
-}
 
     /* -------- Orakel -------- */
     #orakel {
@@ -312,15 +222,6 @@
       <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">Selfie-Station
     </a>
   </header>
-<header class="main-header">
-  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
-       alt="Logo" class="logo">
-
-  <button id="selfieLink" class="selfie-btn">
-    <span class="camera-icon">📸</span>
-    Selfie-Station
-  </button>
-</header>
 
   <h1>Treppen-Challenge</h1>
   <div id="orakel">🔮 Lade das Treppen-Orakel…</div>
@@ -681,3 +582,4 @@
     }
   </script>
 </body>
+</html>
