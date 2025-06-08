@@ -147,46 +147,43 @@
       color:#795548;
     }
 
-    /* -------- Countdown & Quiz -------- */
-    #countQuizBar {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      flex-wrap:wrap;
-      border:2px solid #00796b;
-      border-radius:6px;
-      padding:.5em 1em;
-      margin-bottom:1em;
-    }
-    #countdown { font-weight:bold; }
-    a.quiz-link {
-      padding:.4em 1em;
-      background:#00796b;
-      color:#fff;
-      border-radius:4px;
-      text-decoration:none;
-      font-size:1.1em;
-    }
-    a.quiz-link:hover { background:#004d40; }
+   /* gemeinsame Basis für beide Kacheln */
+.bar-item {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  padding: .8em 1em;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-size: 1em;
+}
 
-    /* -------- Formulare -------- */
-    label, select, button, input {
-      display:block;
-      margin:1em auto;
-      font-size:1.1em;
-      text-align:center;
-    }
-    select, input { padding:.4em; width:80%; }
-    button {
-      padding:.4em 1em;
-      background:#00796b;
-      color:#fff;
-      border:none;
-      border-radius:4px;
-      cursor:pointer;
-    }
-    button:hover { background:#004d40; }
-    button:disabled { background:#ccc!important; cursor:not-allowed!important; }
+/* Icon-Styling */
+.bar-item .icon {
+  font-size: 1.2em;
+}
+
+/* Countdown-Kachel */
+.countdown-box {
+  border: 2px solid #00796b;
+  color: #00796b;
+}
+
+/* Quiz-Kachel */
+.quiz-box {
+  border: 2px solid #e91e63;
+  color: #e91e63;
+}
+.quiz-box .quiz-link {
+  color: inherit;            /* übernimmt die Box-Farbe */
+  text-decoration: none;
+  font-weight: bold;
+}
+.quiz-box .quiz-link:hover {
+  text-decoration: underline;
+}
 
     /* -------- Ranglisten -------- */
     #leaderContainer { margin-top:1em; }
@@ -325,10 +322,16 @@
   <div id="orakel">🔮 Lade das Treppen-Orakel…</div>
 
   <div id="countQuizBar">
-    <div id="countdown">⏳ Lade…</div>
-    <a id="quizLink" class="quiz-link">🚀 Zum täglichen Quiz</a>
-    <div id="rewardIceCream"></div>
+  <div class="bar-item countdown-box">
+    <span class="icon">⏳</span>
+    <span id="countdown">Lade…</span>
   </div>
+  <div class="bar-item quiz-box">
+    <span class="icon">🚀</span>
+    <a href="quiz.html" class="quiz-link">Zum täglichen Quiz</a>
+  </div>
+</div>
+
 
   <label for="klasse">Wähle deine Klasse:</label>
   <select id="klasse">
