@@ -100,7 +100,29 @@
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.2); }
 }
-
+/* -------- Form Container (Inline-Layout) -------- */
+#formContainer {
+  text-align: center;
+  margin: 1.5em 0;
+}
+#formContainer label {
+  display: inline-block;
+  margin: 0 .5em 0 0;
+  font-weight: bold;
+}
+#formContainer select {
+  display: inline-block;
+  margin: 0 .5em;
+  padding: .4em;
+  font-size: 1em;
+  min-width: 160px;
+}
+#formContainer button {
+  display: inline-block;
+  margin-left: .5em;
+  padding: .4em 1em;
+  font-size: 1em;
+}
 /* Klick-Ripple */
 .selfie-btn::after {
   pointer-events: none;
@@ -333,21 +355,21 @@
 </div>
 
 
+ <div id="formContainer">
   <label for="klasse">Wähle deine Klasse:</label>
   <select id="klasse">
-    <option value="">--Bitte wählen--</option>
+    <option value="">-- Bitte wählen --</option>
+    <!-- … -->
   </select>
 
   <label for="stockwerk">Angekommen im Stockwerk:</label>
   <select id="stockwerk">
     <option value="">-- Bitte wählen --</option>
-    <option value="1">1. Stock (1 Punkt)</option>
-    <option value="2">2. Stock (2 Punkte)</option>
-    <option value="3">3. Stock (3 Punkte)</option>
-    <option value="4">4. Stock (4 Punkte)</option>
+    <!-- … -->
   </select>
-  <small id="stockHint" style="display:block;color:#d84315;text-align:center;">
-  </small>
+
+  <button id="enterBtn">Punkte eintragen</button>
+</div>
 
   <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
   <div id="output"></div>
