@@ -232,6 +232,14 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const stock = new URLSearchParams(window.location.search).get('stock') || '';
+      // Quiz-Link anpassen
+      const ql = document.getElementById('quizLink');
+      ql.href = stock ? `quiz.html?stock=${stock}` : 'quiz.html';
+      // Selfie-Link anpassen
+      const sl = document.getElementById('selfieLink');
+      sl.href = stock ? `selfie.html?stock=${stock}` : 'selfie.html';
     // -- Firebase initialisieren --
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
