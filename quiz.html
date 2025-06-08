@@ -98,46 +98,50 @@
     }
 
     submitBtn.onclick = () => {
-      const klasse = klasseSelect.value;
-      if (!klasse) { alert('Bitte Klasse auswählen!'); return; }
+  const klasse = klasseSelect.value;
+  if (!klasse) { alert('Bitte Klasse auswählen!'); return; }
 
-      const fragen = document.querySelectorAll('.question');
-      let korrekt = 0, alleBeantwortet = true;
+  const fragen = document.querySelectorAll('.question');
+  let korrekt = 0, alleBeantwortet = true;
 
-      // Prüfung und Hervorheben
-      fragen.forEach(frage => {
-        const correctIdx = parseInt(frage.dataset.correct, 10);
-        const antwort = frage.querySelector('input:checked');
-        if (!antwort) alleBeantwortet = false;
+  fragen.forEach(frage => {
+    const correctIdx = parseInt(frage.dataset.correct, 10);
+    const antwort = frage.querySelector('input:checked');
+    if (!antwort) alleBeantwortet = false;
 
-        // Deaktiviere alle Eingaben und markiere
-        frage.querySelectorAll('.option').forEach(opt => {
-          const inp = opt.querySelector('input');
-          inp.disabled = true;
-          if (parseInt(inp.value,10) === correctIdx) {
-            opt.classList.add('correct');
-          } else if (inp.checked) {
-            opt.classList.add('wrong');
-          }
-        });
-
-        if (antwort && parseInt(antwort.value) === correctIdx) korrekt++;
-      });
-
-      if (!alleBeantwortet) {
-        alert('Bitte alle Fragen beantworten!');
-        return;
+    frage.querySelectorAll('.option').forEach(opt => {
+      const inp = opt.querySelector('input');
+      inp.disabled = true;
+      if (parseInt(inp.value,10) === correctIdx) {
+        opt.classList.add('correct');
+      } else if (inp.checked) {
+        opt.classList.add('wrong');
       }
+    });
 
-      // Punkte speichern
-      const punkte = korrekt;
-      db.ref(`punkte/${klasse}`).transaction(v => (v || 0) + punkte);
-      db.ref(`daily/${today}/${klasse}`).transaction(v => (v || 0) + punkte);
+    if (antwort && parseInt(antwort.value) === correctIdx) korrekt++;
+  });
 
-      resultDiv.textContent = `🎉 Du hast ${korrekt} von ${fragen.length} richtig → +${punkte} Punkt${punkte !== 1 ? 'e':''}!`;
-      submitBtn.disabled = true;
-      localStorage.setItem('quizDatum', today);const stock = new URLSearchParams(window.location.search).get('stock');window.location.href = `index.html${stock ? '?stock=' + stock : ''}`;
-    };
+  if (!alleBeantwortet) {
+    alert('Bitte alle Fragen beantworten!');
+    return;
+  }
+
+  // Punkte speichern
+  const punkte = korrekt;
+  db.ref(`punkte/${klasse}`).transaction(v => (v || 0) + punkte);
+  db.ref(`daily/${today}/${klasse}`).transaction(v => (v || 0) + punkte);
+
+  resultDiv.textContent = `🎉 Du hast ${korrekt} von ${fragen.length} richtig → +${punkte} Punkt${punkte !== 1 ? 'e':''}!`;
+  submitBtn.disabled = true;
+  localStorage.setItem('quizDatum', today);
+
+  // Redirect zurück auf index.html?stock=X
+  setTimeout(() => {
+    const stock = new URLSearchParams(window.location.search).get('stock');
+    window.location.href = `index.html${stock ? '?stock=' + stock : ''}`;
+  }, 1500); // 1.5s, damit man das Ergebnis noch erkennt
+};
   </script>
 </body>
 </html>
