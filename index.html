@@ -5,233 +5,351 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
 
-  <!-- 1) Passwort- / Stock-Param-Check -->
+  <!-- Passwort- / Stock-Param-Check -->
   <script>
     (function(){
       const allowed = ['1','2','3','4'];
       const sp = new URLSearchParams(location.search).get('stock');
-      const auth = localStorage.getItem('authenticated') === 'true';
-      // Durchwinken, wenn stock gültig oder schon authentifiziert
-      if (allowed.includes(sp) || auth) return;
-      // Sonst Passwort abfragen
-      const pw = prompt('Passwort für Hauptseite:');
-      if (pw === 'Bistroboykott') {
-        localStorage.setItem('authenticated','true');
-      } else {
-        alert('❌ Falsches Passwort!');
-        window.location.href = 'index.html';
+      // wenn stock nicht gültig, Passwort fragen
+      if (!allowed.includes(sp)) {
+        const pw = prompt('Passwort für Hauptseite:');
+        if (pw !== 'Bistroboykott') {
+          alert('❌ Falsches Passwort!');
+          // redirect zurück oder auf spez. Login-Seite
+          window.location.href = 'index.html'; 
+          // oder: history.back();
+        }
+        // wenn korrekt, einfach weiter laden
       }
     })();
   </script>
 
-  <!-- 2) Styles -->
   <style>
-    /* Grundlayout */
+    /* -------- Grundlayout -------- */
     body {
       font-family: 'Segoe UI', sans-serif;
-      padding: 1em;
+      padding: 2em;
       background: linear-gradient(to bottom, #e0f7fa, #ffffff);
       color: #333;
       max-width: 700px;
       margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h1 { color:#00796b; text-align:center; margin:1em 0; }
-    a.back { display:block; text-align:center; margin-bottom:1em; color:#00796b; text-decoration:none; }
-    a.back:hover { text-decoration:underline; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1em 0;
+    }
+    header img.logo { height: 80px; }
+    h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
+  /* ---- Selfie-Station Header ---- */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1em 1.5em;
+  background: #ffffffcc;          /* leicht transparentes Weiß */
+  backdrop-filter: blur(10px);    /* milder Blur-Effekt dahinter */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 1em;
+  z-index: 10;
+}
 
-    /* Selfie-Header */
-    .main-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:.5em 1em; background:#ffffffcc; backdrop-filter:blur(6px);
-      border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);
-      position:sticky; top:0; z-index:10;
-    }
-    .logo { height:120px; transition:transform .3s; }
-    .logo:hover { transform:rotate(-5deg) scale(1.05); }
-    .selfie-btn {
-      position:relative; display:inline-flex; align-items:center;
-      background:linear-gradient(135deg,#00796b,#004d40); color:#fff;
-      padding:.5em 1em; border-radius:999px; font-weight:600; cursor:pointer;
-      overflow:hidden; transition:transform .2s, box-shadow .2s;
-      box-shadow:0 4px 8px rgba(0,0,0,0.2);
-    }
-    .selfie-btn:hover {
-      transform:scale(1.05); box-shadow:0 6px 16px rgba(0,0,0,0.3);
-    }
-    .camera-icon { margin-right:.5em; font-size:1.2em; animation:pulse 2s ease-in-out infinite; }
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-    .selfie-btn::after {
-      pointer-events:none; content:""; position:absolute; top:50%; left:50%;
-      width:10px; height:10px; background:rgba(255,255,255,0.4);
-      border-radius:50%; transform:translate(-50%,-50%) scale(1);
-      opacity:0; transition:transform .6s ease-out,opacity .6s ease-out;
-    }
-    .selfie-btn:active::after {
-      transform:translate(-50%,-50%) scale(15); opacity:0;
-      transition:transform .3s ease-out,opacity .3s ease-out;
-    }
-    .selfie-btn:hover:before {
-      content:"Mach ein Selfie!"; position:absolute;
-      bottom:calc(100% + .3em); left:50%; transform:translateX(-50%);
-      background:#004d40; color:#fff; padding:.3em .6em; border-radius:4px;
-      font-size:.85em; white-space:nowrap; opacity:.9;
-    }
+.logo {
+  height: 60px;
+  transition: transform .3s;
+}
+.logo:hover {
+  transform: rotate(-5deg) scale(1.05);
+}
 
-    /* Orakel */
+/* runder, schwebender Selfie-Button */
+.selfie-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #00796b, #004d40);
+  color: #fff;
+  padding: .6em 1em;
+  border: none;
+  border-radius: 999px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.selfie-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+/* Puls-Animation fürs Icon */
+.selfie-btn .camera-icon {
+  display: inline-block;
+  margin-right: .5em;
+  font-size: 1.3em;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.2); }
+}
+
+/* Klick-Ripple */
+.selfie-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(1);
+  opacity: 0;
+  transition: transform .6s ease-out, opacity .6s ease-out;
+}
+.selfie-btn:active::after {
+  transform: translate(-50%,-50%) scale(15);
+  opacity: 0;
+  transition: transform .3s ease-out, opacity .3s ease-out;
+}
+
+/* Kleines Tooltip-Label */
+.selfie-btn:hover:before {
+  content: "Mach ein Selfie!";
+  position: absolute;
+  bottom: calc(100% + .5em);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #004d40;
+  color: #fff;
+  padding: .3em .6em;
+  border-radius: 4px;
+  font-size: .9em;
+  white-space: nowrap;
+  opacity: .9;
+}
+
+    /* -------- Orakel -------- */
     #orakel {
-      text-align:center; margin:1em auto; padding:.8em 1em;
-      border:2px dashed #ff9800; border-radius:8px;
-      background:#fff8e1; color:#795548;
+      text-align:center;
+      margin:1em auto;
+      padding:10px;
+      border:2px dashed #ff9800;
+      border-radius:8px;
+      background:#fff8e1;
+      color:#795548;
     }
 
-    /* Countdown & Quiz */
+    /* -------- Countdown & Quiz -------- */
     #countQuizBar {
-      display:flex; gap:1em; flex-wrap:wrap; margin:1em 0;
-    }
-    .bar-item {
-      flex:1; display:inline-flex; align-items:center; gap:.5em;
-      padding:.8em 1em; border-radius:8px; background:#fff;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1); font-size:1em;
-    }
-    .countdown-box { border:2px solid #00796b; color:#00796b; }
-    .quiz-box    { border:2px solid #e91e63; color:#e91e63; }
-    .quiz-box .quiz-link {
-      color:inherit; text-decoration:none; font-weight:bold;
-    }
-    .quiz-box .quiz-link:hover { text-decoration:underline; }
-    .icon { font-size:1.2em; }
-
-    /* Auswahl-Formular als Grid */
-    #formContainer {
-      display:grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap:0.5em 1em;
+      display:flex;
+      justify-content:space-between;
       align-items:center;
-      margin:1.5em 0;
+      flex-wrap:wrap;
+      border:2px solid #00796b;
+      border-radius:6px;
+      padding:.5em 1em;
+      margin-bottom:1em;
     }
-    #formContainer label {
-      justify-self:end;
-      font-weight:bold;
+    #countdown { font-weight:bold; }
+    a.quiz-link {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border-radius:4px;
+      text-decoration:none;
+      font-size:1.1em;
     }
-    #formContainer select {
-      justify-self:start;
-      padding:.5em;
-      width:100%;
-      max-width:200px;
+    a.quiz-link:hover { background:#004d40; }
+
+    /* -------- Formulare -------- */
+    label, select, button, input {
+      display:block;
+      margin:1em auto;
+      font-size:1.1em;
+      text-align:center;
     }
-    #formContainer button {
-      grid-column:3;
-      padding:.6em 1.2em;
+    select, input { padding:.4em; width:80%; }
+    button {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
       cursor:pointer;
     }
+    button:hover { background:#004d40; }
+    button:disabled { background:#ccc!important; cursor:not-allowed!important; }
 
-    /* Ranglisten */
-    #leaderContainer { margin-top:1.5em; }
+    /* -------- Ranglisten -------- */
+    #leaderContainer { margin-top:1em; }
     #topLeaderContainer {
-      display:flex; gap:1em; flex-wrap:wrap; justify-content:center;
+      display:flex;
+      gap:1em;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:1em;
     }
     #leaderboard, #dailyLeaderboard, #lehrerliste {
-      flex:1; border:2px solid #00796b; padding:1em; border-radius:6px;
+      flex:1;
+      border:2px solid #00796b;
+      padding:1em;
+      border-radius:6px;
     }
     #dailyLeaderboard { background:#f9f9f9; opacity:.7; }
 
-    /* Statistik & Admin */
+    /* -------- Statistik -------- */
     #statistik { text-align:center; margin-top:1em; }
-    #admin     { text-align:center; margin-top:2em; }
 
-    /* Glücksrad Modal */
+    /* -------- Admin -------- */
+    #admin { text-align:center; margin-top:2em; }
+
+    /* -------- Glücksrad Modal -------- */
     #modalOverlay {
-      display:none; position:fixed; top:0; left:0;
-      width:100%; height:100%; background:rgba(0,0,0,0.6);
-      align-items:center; justify-content:center; z-index:1000;
+      display:none;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      align-items:center; justify-content:center;
+      z-index:1000;
     }
     #modalContent {
-      background:#fff; border-radius:8px; padding:1em;
-      text-align:center; max-width:320px; margin:auto;
+      background:#fff;
+      border-radius:8px;
+      padding:1em;
+      text-align:center;
+      max-width:320px;
+      margin:auto;
+    }
+    #svgContainer {
+      position:relative;
+      width:280px; height:280px;
+      margin:auto;
+      padding:5px;
+      border:5px solid #00796b;
+      border-radius:50%;
+      box-sizing:content-box;
+    }
+    #zeiger {
+      position:absolute; top:-30px; left:50%;
+      transform:translateX(-50%);
+      border-left:20px solid transparent;
+      border-right:20px solid transparent;
+      border-top:30px solid #333;
+      z-index:2;
+    }
+    #svgRad {
+      width:100%; height:100%;
+      border-radius:50%;
+      transition:transform 5s ease-out;
+    }
+    #centerCircle { fill:#fff; stroke:#333; stroke-width:4; }
+    #gewinnPopup { display:none; margin-top:1em; }
+    #gewinnPopup button {
+      margin-top:1em;
+      padding:.5em 1.5em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
     }
 
-    /* Animationen */
+    /* -------- Animationen -------- */
     .animate-check { animation:bounce .6s; display:inline-block; }
-    @keyframes bounce{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+    @keyframes bounce { 0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)} }
     .leader { font-weight:bold; color:gold; animation:glow 1s infinite alternate; }
-    @keyframes glow{from{text-shadow:0 0 10px gold}to{text-shadow:0 0 20px orange}}
+    @keyframes glow { from{text-shadow:0 0 10px gold} to{text-shadow:0 0 20px orange} }
     .icecream {
-      position:fixed; bottom:-50px; font-size:2rem; opacity:.8;
-      animation:riseIceCream 2s ease-out forwards; pointer-events:none;
+      position: fixed; bottom: -50px; font-size:2rem;
+      opacity:0.8;
+      animation: riseIceCream 2s ease-out forwards;
+      pointer-events:none;
     }
-    @keyframes riseIceCream{
-      0%{transform:translateY(0) scale(1);opacity:.8}
-      50%{opacity:1}
-      100%{transform:translateY(-120vh) scale(1.5);opacity:0}
-    }
-
-    /* Mobile */
-    @media (max-width:480px){
-      body { padding:.5em; }
-      .main-header { flex-direction:column; gap:.5em; }
-      .logo { height:80px; }
-      #countQuizBar { flex-direction:column; }
-      .bar-item { width:100%; justify-content:center; }
-      #formContainer {
-        grid-template-columns:1fr;
-        text-align:center;
-      }
-      #formContainer label,
-      #formContainer select {
-        justify-self:center;
-        width:80%;
-      }
-      #formContainer button { grid-column:1; }
+    @keyframes riseIceCream {
+      0%   { transform: translateY(0) scale(1); opacity:0.8; }
+      50%  { opacity:1; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity:0; }
     }
   </style>
+
+  <!--
+    Stockwerk Sperre + Link-Redirects
+  -->
+  <script>
+    function lockStock() {
+      const sp = new URLSearchParams(location.search).get('stock');
+      if (['1','2','3','4'].includes(sp)) {
+        const el = document.getElementById('stockwerk');
+        el.value = sp;
+        el.disabled = true;
+      }
+    }
+    function setupRedirects() {
+      const stock = new URLSearchParams(location.search).get('stock') || '';
+      document.getElementById('quizLink').href    = stock ? `quiz.html?stock=${stock}`    : 'quiz.html';
+      document.getElementById('selfieLink').href  = stock ? `selfie.html?stock=${stock}`  : 'selfie.html';
+      document.getElementById('backLink').href    = stock ? `index.html?stock=${stock}`  : 'index.html';
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      lockStock();
+      setupRedirects();
+    });
+    window.addEventListener('pageshow', lockStock);
+  </script>
 </head>
 <body>
 
-  <!-- Header -->
-  <header class="main-header">
-    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
-         alt="Logo" class="logo">
-    <button id="selfieLink" class="selfie-btn"
-            onclick="window.location.href='selfie.html'+window.location.search">
-      <span class="camera-icon">📸</span> Selfie-Station
-    </button>
+  <header>
+    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo" class="logo">
+    <a id="selfieLink" class="selfie-btn" title="Selfie-Station">
+      <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">Selfie-Station
+    </a>
   </header>
+<header class="main-header">
+  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
+       alt="Logo" class="logo">
 
-  <!-- Orakel -->
+  <button id="selfieLink" class="selfie-btn">
+    <span class="camera-icon">📸</span>
+    Selfie-Station
+  </button>
+</header>
+
+  <h1>Treppen-Challenge</h1>
   <div id="orakel">🔮 Lade das Treppen-Orakel…</div>
 
-  <!-- Countdown & Quiz -->
   <div id="countQuizBar">
-    <div class="bar-item countdown-box">
-      <span class="icon">⏳</span><span id="countdown">Lade…</span>
-    </div>
-    <div class="bar-item quiz-box">
-      <span class="icon">🚀</span>
-      <a id="quizLink" class="quiz-link" href="#">Zum täglichen Quiz</a>
-    </div>
+    <div id="countdown">⏳ Lade…</div>
+    <a id="quizLink" class="quiz-link">🚀 Zum täglichen Quiz</a>
+    <div id="rewardIceCream"></div>
   </div>
 
-  <!-- Auswahl-Formular -->
-  <div id="formContainer">
-    <label for="klasse">Wähle deine Klasse:</label>
-    <select id="klasse">
-      <option value="">-- Bitte wählen --</option>
-    </select>
+  <label for="klasse">Wähle deine Klasse:</label>
+  <select id="klasse">
+    <option value="">--Bitte wählen--</option>
+  </select>
 
-    <label for="stockwerk">Angekommen im Stockwerk:</label>
-    <select id="stockwerk">
-      <option value="">-- wählen --</option>
-      <option value="1">1. Stock (1 Punkt)</option>
-      <option value="2">2. Stock (2 Punkte)</option>
-      <option value="3">3. Stock (3 Punkte)</option>
-      <option value="4">4. Stock (4 Punkte)</option>
-    </select>
+  <label for="stockwerk">Angekommen im Stockwerk:</label>
+  <select id="stockwerk">
+    <option value="">-- Bitte wählen --</option>
+    <option value="1">1. Stock (1 Punkt)</option>
+    <option value="2">2. Stock (2 Punkte)</option>
+    <option value="3">3. Stock (3 Punkte)</option>
+    <option value="4">4. Stock (4 Punkte)</option>
+  </select>
+  <small id="stockHint" style="display:block;color:#d84315;text-align:center;">
+  </small>
 
-    <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
-  </div>
+  <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
   <div id="output"></div>
 
-  <!-- Ranglisten -->
   <div id="leaderContainer">
     <div id="topLeaderContainer">
       <div id="leaderboard"></div>
@@ -240,8 +358,8 @@
     <div id="lehrerliste"></div>
   </div>
 
-  <!-- Statistik & Admin -->
   <div id="statistik"></div>
+
   <div id="admin">
     <h3>🔐 Adminbereich</h3>
     <input type="password" id="adminpass" placeholder="Passwort">
@@ -251,10 +369,9 @@
     </div>
   </div>
 
-  <!-- Glücksrad Modal -->
   <div id="modalOverlay">
     <div id="modalContent">
-      <h3>🎉 Glückwunsch! Dreh das Rad!</h3>
+      <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
       <div id="svgContainer">
         <div id="zeiger"></div>
         <svg id="svgRad" viewBox="0 0 250 250">
@@ -262,13 +379,10 @@
           <circle id="centerCircle" cx="125" cy="125" r="40"/>
         </svg>
       </div>
-      <button id="spinBtn" onclick="dreheGluecksradSVG()">🎰 Drehen!</button>
-      <div id="gewinnPopup"><div id="gewinnText"></div>
-        <button onclick="hidePopup()">OK</button>
-      </div>
+      <button id="spinBtn" onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
+      <div id="gewinnPopup"><div id="gewinnText"></div><button onclick="hidePopup()">OK</button></div>
     </div>
   </div>
-
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -567,4 +681,3 @@
     }
   </script>
 </body>
-</html>
