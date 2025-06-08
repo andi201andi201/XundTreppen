@@ -60,7 +60,7 @@
 }
 
 .logo {
-  height: 60px;
+  height: 100px;
   transition: transform .3s;
 }
 .logo:hover {
@@ -103,6 +103,7 @@
 
 /* Klick-Ripple */
 .selfie-btn::after {
+  pointer-events: none;
   content: "";
   position: absolute;
   top: 50%; left: 50%;
@@ -310,7 +311,11 @@
   <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
        alt="Logo" class="logo">
 
-  <button id="selfieLink" class="selfie-btn">
+  <button
+    id="selfieLink"
+    class="selfie-btn"
+    onclick="window.location.href='selfie.html'+window.location.search"
+  >
     <span class="camera-icon">📸</span>
     Selfie-Station
   </button>
