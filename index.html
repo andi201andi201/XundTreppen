@@ -151,10 +151,10 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  border: 2px solid #00796b;
-  border-radius: 6px;
-  padding: .5em 1em;         /* optional: .5em 0; */
+  /* border: 2px solid #00796b; */
+  padding: .5em 0;             /* optional: nur vertikal etwas Abstand */
   margin-bottom: 1em;
+  background: transparent;     /* Falls du einen Hintergrund willst, hier anpassen */
 }
     #countdown { font-weight:bold; }
     a.quiz-link {
@@ -348,8 +348,10 @@
 
 <div id="countQuizBar">
   <div class="bar-item quiz-box">
-    <span class="icon">🚀</span>
-    <a id="quizLink" class="quiz-link">Zum täglichen Quiz</a>
+    <a id="quizLink" class="quiz-link">
+  <span class="quiz-icon">🚀</span>
+  Zum täglichen Quiz
+</a>
   </div>
 </div>
 
