@@ -320,10 +320,29 @@
       document.getElementById('selfieLink').href  = stock ? `selfie.html?stock=${stock}`  : 'selfie.html';
       document.getElementById('backLink').href    = stock ? `index.html?stock=${stock}`  : 'index.html';
     }
-    window.addEventListener('DOMContentLoaded', () => {
-      lockStock();
-      setupRedirects();
-    });
+window.addEventListener('DOMContentLoaded', () => {
+  lockStock();
+  setupRedirects();
+
+  const btn       = document.getElementById('enterBtn');
+  const stockHint = document.getElementById('stockHint');
+  const last      = +localStorage.getItem('lastTime') || 0;
+  const now       = Date.now();
+  const timeout   = 20 * 60 * 1000; // 20 Minuten in ms
+
+  // falls innerhalb der Sperrzeit
+  if (now - last < timeout) {
+    btn.disabled = true;
+    const remainingMin = Math.ceil((timeout - (now - last)) / 60000);
+    stockHint.textContent = `⏳ Bitte warte noch ${remainingMin} Minute(n).`;
+
+    // nach Ablauf wieder freigeben
+    setTimeout(() => {
+      btn.disabled = false;
+      stockHint.textContent = '';
+    }, timeout - (now - last));
+  }
+});
     window.addEventListener('pageshow', lockStock);
   </script>
 </head>
