@@ -25,7 +25,96 @@
   </script>
 
   <style>
-    /* -------- Grundlayout -------- */
+/* -------- Selfie-Station Header -------- */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5em 1em;
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  height: 120px;
+  transition: transform .3s;
+}
+.logo:hover {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+/* runder, schwebender Selfie-Button */
+.selfie-btn {
+  display: inline-flex;           /* Flex-Container */
+  align-items: center;            /* vertikal mittig */
+  justify-content: center;        /* horizontal mittig */
+  gap: 0.6em;                     /* Abstand Icon ⇄ Text */
+  white-space: nowrap;            /* keine Zeilenumbrüche */
+  background: linear-gradient(135deg, #00796b, #004d40);
+  color: #fff;
+  padding: .6em 1.4em;            /* mehr Platz, verhindert Abschneiden */
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Hover- & Active-Effekte */
+.selfie-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+.selfie-btn:active::after {
+  transform: translate(-50%,-50%) scale(15);
+  opacity: 0;
+}
+
+/* Pulsierendes Kamera-Icon */
+.camera-icon {
+  font-size: 1.3em;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.2); }
+}
+
+/* Klick-Ripple */
+.selfie-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(1);
+  opacity: 0;
+  transition: transform .6s ease-out, opacity .6s ease-out;
+  pointer-events: none;
+}
+
+/* Tooltip beim Hover */
+.selfie-btn:hover::before {
+  content: "Mach ein Selfie!";
+  position: absolute;
+  bottom: calc(100% + .4em);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #004d40;
+  color: #fff;
+  padding: .3em .6em;
+  border-radius: 4px;
+  font-size: .85em;
+  white-space: nowrap;
+  opacity: .9;
+}
     body {
       font-family: 'Segoe UI', sans-serif;
       padding: 2em;
@@ -42,7 +131,7 @@
       justify-content: space-between;
       padding: 1em 0;
     }
-    header img.logo { height: 80px; }
+   /* header img.logo { height: 80px; } */
     h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
 
     /* -------- Orakel -------- */
@@ -76,8 +165,32 @@
       text-decoration:none;
       font-size:1.1em;
     }
-    a.quiz-link:hover { background:#004d40; }
-
+/* ————— Quiz-Button ————— */
+.quiz-box .quiz-link {
+  display: inline-block;
+  padding: 0.6em 1.2em;
+  background: #fff;
+  color: #e91e63;
+  border: 2px solid #e91e63;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.quiz-box .quiz-link:hover {
+  background: #fce4ec;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.quiz-box .quiz-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+@media (max-width:480px) {
+  #countQuizBar { flex-direction:column; }
+  .bar-item { width:100%; justify-content:center; }
+}
     /* -------- Formulare -------- */
     label, select, button, input {
       display:block;
@@ -216,21 +329,29 @@
 </head>
 <body>
 
-  <header>
-    <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="Logo" class="logo">
-    <a id="selfieLink" class="selfie-btn" title="Selfie-Station">
-      <img src="https://img.icons8.com/ios-filled/50/00796b/camera.png" alt="Selfie">Selfie-Station
-    </a>
-  </header>
+<header class="main-header">
+  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
+       alt="Logo" class="logo">
+  <button id="selfieLink" class="selfie-btn"
+          onclick="location.href='selfie.html'+window.location.search">
+    <span class="camera-icon">📸</span>
+    Selfie-Station
+  </button>
+</header>
 
   <h1>Treppen-Challenge</h1>
   <div id="orakel">🔮 Lade das Treppen-Orakel…</div>
 
-  <div id="countQuizBar">
-    <div id="countdown">⏳ Lade…</div>
-    <a id="quizLink" class="quiz-link">🚀 Zum täglichen Quiz</a>
-    <div id="rewardIceCream"></div>
+<div id="countQuizBar">
+  <div class="bar-item countdown-box">
+    <span class="icon">⏳</span>
+    <span id="countdown">Lade…</span>
   </div>
+  <div class="bar-item quiz-box">
+    <span class="icon">🚀</span>
+    <a id="quizLink" class="quiz-link">Zum täglichen Quiz</a>
+  </div>
+</div>
 
   <label for="klasse">Wähle deine Klasse:</label>
   <select id="klasse">
@@ -337,7 +458,7 @@
               hrs  = new Date(diff).getUTCHours(),
               min  = new Date(diff).getUTCMinutes();
         document.getElementById("countdown").textContent =
-          `⏳ Noch ${days} Tage, ${hrs} Stunden, ${min} Minuten`;
+          ` Noch ${days} Tage, ${hrs} Stunden, ${min} Minuten`;
       }, 1000);
     })();
 
