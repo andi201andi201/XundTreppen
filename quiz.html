@@ -160,8 +160,7 @@
       resultDiv.textContent = `🎉 ${korrekt} von ${fragen.length} richtig → +${punkte} Punkt${punkte!==1?'e':''}!`;
       submitBtn.disabled = true;
       localStorage.setItem('quizDatum', today);
-
-// 1. "Zurück zur Challenge"-Button erstellen
+      }
       const stock = new URLSearchParams(window.location.search).get('stock');
       const backBtn = document.createElement('button');
       backBtn.textContent = '← Zurück zur Challenge';
