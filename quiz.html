@@ -161,14 +161,14 @@
       submitBtn.disabled = true;
       localStorage.setItem('quizDatum', today);
 
-      // Nach kurzer Pause zurückleiten
-      setTimeout(() => {
-        const stock = getStockParam();
-        window.location.href = stock
-          ? `index.html?stock=${stock}`
-          : 'index.html';
-      }, 1500);
-    };
+// 1. "Zurück zur Challenge"-Button erstellen
+      const stock = new URLSearchParams(window.location.search).get('stock');
+      const backBtn = document.createElement('button');
+      backBtn.textContent = '← Zurück zur Challenge';
+      backBtn.style.marginTop = '1em';
+      backBtn.onclick = () => {
+        window.location.href = `index.html${stock ? '?stock=' + stock : ''}`;
+      };
   </script>
 </body>
 </html>
