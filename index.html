@@ -1,6 +1,64 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <script>
+  (function(){
+    const sp    = new URLSearchParams(location.search).get('stock');
+    const now   = new Date();
+    const event = new Date("2025-06-11T07:00:00");
+
+    if (["1","2","3","4"].includes(sp) && now < event) {
+      document.documentElement.innerHTML = `
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>Stockwerk ${sp} gesperrt</title>
+          <style>
+            body {
+              margin:0;
+              display:flex;
+              flex-direction:column;
+              justify-content:center;
+              align-items:center;
+              height:100vh;
+              font-family:'Segoe UI',sans-serif;
+              background: linear-gradient(to bottom,#e0f7fa,#ffffff);
+              color:#00796b;
+              text-align:center;
+            }
+            h1 { font-size:2rem; margin-bottom:.5em; }
+            #timer { font-size:1.5rem; font-weight:bold; }
+            p { margin-top:.5em; }
+          </style>
+        </head>
+        <body>
+          <h1>🔒 Stockwerk ${sp} noch nicht verfügbar</h1>
+          <div id="timer">lade…</div>
+          <p>Freischaltung am 11. Juni 2025 um 07:00 Uhr</p>
+          <script>
+            (function(){
+              const tEl = document.getElementById('timer');
+              const target = new Date("2025-06-11T07:00:00");
+              function upd(){
+                const d = target - new Date();
+                if (d <= 0) {
+                  location.href = location.pathname + '?stock=${sp}';
+                  return;
+                }
+                const days = Math.floor(d/86400000);
+                const hrs  = Math.floor((d%86400000)/3600000);
+                const min  = Math.floor((d%3600000)/60000);
+                const sec  = Math.floor((d%60000)/1000);
+                tEl.textContent = days + ' Tage ' + hrs + ' Std ' + min + ' Min ' + sec + ' Sek';
+              }
+              setInterval(upd,1000);
+              upd();
+            })();
+          <\/script>
+        </body>`;
+    }
+  })();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
