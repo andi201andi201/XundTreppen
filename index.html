@@ -347,52 +347,7 @@ window.addEventListener('DOMContentLoaded', () => {
   </script>
 </head>
 <body>
-<script>
-    (function(){
-      const sp    = new URLSearchParams(window.location.search).get('stock');
-      const event = new Date("2025-06-11T07:00:00");
-      const now   = new Date();
-      // Nur bis Event-Start und nur für stock=1|2|3|4:
-      if (["1","2","3","4"].includes(sp) && now < event) {
-        document.body.innerHTML = `
-          <div style="display:flex;flex-direction:column;
-                      justify-content:center;align-items:center;
-                      height:100vh;margin:0;
-                      font-family:'Segoe UI',sans-serif;
-                      background:linear-gradient(to bottom,#e0f7fa,#ffffff);
-                      text-align:center;color:#00796b;">
-            <h1 style="font-size:2rem;margin-bottom:.5em;">
-              🔒 Stockwerk ${sp} noch nicht freigeschaltet
-            </h1>
-            <div id="stockTimer" style="font-size:1.5rem;font-weight:bold;"></div>
-            <p style="margin-top:.5em;">
-              Freischaltung am<br>11. Juni 2025 um 07:00 Uhr
-            </p>
-          </div>
-          <script>
-            (function(){
-              const el = document.getElementById('stockTimer');
-              const target = new Date("2025-06-11T07:00:00");
-              function update(){
-                const diff = target - new Date();
-                if(diff <= 0) {
-                  // neu laden – jetzt wird deine App geladen
-                  window.location = window.location.pathname + '?stock=${sp}';
-                  return;
-                }
-                const d = Math.floor(diff/86400000),
-                      h = Math.floor((diff%86400000)/3600000),
-                      m = Math.floor((diff%3600000)/60000),
-                      s = Math.floor((diff%60000)/1000);
-                el.textContent = \`\${d} T \${h} Std \${m} Min \${s} Sek\`;
-              }
-              setInterval(update,1000);
-              update();
-            })();
-          <\/script>`;
-      }
-    })();
-  </script>
+
 <header class="main-header">
   <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
        alt="Logo" class="logo">
