@@ -1,69 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <!DOCTYPE html>
-<html lang="de">
-<head>
-  <!-- ★ Pre-Event Block ganz oben ★ -->
-  <script>
-  (function(){
-    const sp    = new URLSearchParams(location.search).get('stock');
-    const now   = new Date();
-    const event = new Date("2025-06-11T07:00:00");
-    // Vor Freischaltung nur Timer‐Screen für stock=1–4
-    if (["1","2","3","4"].includes(sp) && now < event) {
-      document.documentElement.innerHTML = `
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width,initial-scale=1">
-          <title>Stockwerk ${sp} gesperrt</title>
-          <style>
-            body {
-              margin:0;
-              display:flex;
-              flex-direction:column;
-              justify-content:center;
-              align-items:center;
-              height:100vh;
-              font-family:'Segoe UI',sans-serif;
-              background:linear-gradient(to bottom,#e0f7fa,#ffffff);
-              color:#00796b;
-              text-align:center;
-            }
-            h1 { font-size:2rem; margin-bottom:.5em; }
-            #timer { font-size:1.5rem; font-weight:bold; }
-            p { margin-top:.5em; }
-          </style>
-        </head>
-        <body>
-          <h1>🔒 Stockwerk ${sp} noch nicht verfügbar</h1>
-          <div id="timer">lade…</div>
-          <p>Freischaltung am 11. Juni 2025 um 07:00 Uhr</p>
-          <script>
-            (function(){
-              const tEl = document.getElementById('timer');
-              const target = new Date("2025-06-11T07:00:00");
-              function upd(){
-                const d = target - new Date();
-                if (d <= 0) {
-                  location.href = location.pathname + '?stock=${sp}';
-                  return;
-                }
-                const days = Math.floor(d/86400000),
-                      hrs  = Math.floor((d%86400000)/3600000),
-                      min  = Math.floor((d%3600000)/60000),
-                      sec  = Math.floor((d%60000)/1000);
-                tEl.textContent =
-                  days + ' Tage ' + hrs + ' Std ' + min + ' Min ' + sec + ' Sek';
-              }
-              setInterval(upd,1000);
-              upd();
-            })();
-          <\/script>
-        </body>`;
-    }
-  })();
-</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
@@ -282,7 +219,7 @@
       justify-content:center;
       margin-bottom:1em;
     }
-    #leaderboard, #dailyLeaderboard, #Dozierendenliste {
+    #leaderboard, #dailyLeaderboard, #lehrerliste {
       flex:1;
       border:2px solid #00796b;
       padding:1em;
@@ -461,7 +398,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <div id="leaderboard"></div>
       <div id="dailyLeaderboard"></div>
     </div>
-    <div id="Dozierendenliste"></div>
+    <div id="lehrerliste"></div>
   </div>
 
   <div id="statistik"></div>
@@ -557,7 +494,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const sel = document.getElementById('klasse');
       kl.forEach(k => sel.append(new Option(k,k)));
       sel.append(Object.assign(new Option('─────────────',''),{disabled:true}));
-      sel.append(new Option('👩‍🏫 Dozierendenteam','Dozierendenteam'));
+      sel.append(new Option('👩‍🏫 Lehrerteam','Lehrerteam'));
 
       // Treppen-Orakel
       const sprueche = [
@@ -657,7 +594,7 @@ window.addEventListener('DOMContentLoaded', () => {
     function ranglisteAktualisieren(){
       const sch = [], leh = [];
       Object.entries(daten).forEach(([k,v])=>{
-        if(k==='Dozierendenteam') leh.push([k,v]);
+        if(k==='Lehrerteam') leh.push([k,v]);
         else sch.push([k,v]);
       });
       sch.sort((a,b)=>b[1]-a[1]);
@@ -670,7 +607,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const lp = leh[0]?.[1]||0;
       document.getElementById('lehrerliste').innerHTML =
         `<h3>📚 Lehrpersonen</h3>
-         <p>👨‍🏫 Dozierendenteam: ${lp} Punkte (außer Konkurrenz)</p>`;
+         <p>👨‍🏫 Lehrerteam: ${lp} Punkte (außer Konkurrenz)</p>`;
     }
 
     // Statistik
