@@ -1,6 +1,66 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <!-- 0) Stock-Seiten nur mit Countdown anzeigen -->
+  <script>
+    (function(){
+      const sp    = new URLSearchParams(location.search).get('stock');
+      const event = new Date("2025-06-11T07:00:00");
+      const now   = new Date();
+
+      // Wenn stock=1-4 und jetzt < Event-Zeit, nur Timer rendern
+      if (["1","2","3","4"].includes(sp) && now < event) {
+        document.documentElement.innerHTML = `
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>Freischaltung Stockwerk ${sp}</title>
+            <style>
+              body {
+                margin:0;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                height:100vh;
+                font-family:'Segoe UI',sans-serif;
+                background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+                color:#00796b;
+                text-align:center;
+                padding:1em;
+              }
+              h1 { font-size:2rem; margin-bottom:.5em; }
+              #timer { font-size:1.5rem; font-weight:bold; }
+            </style>
+          </head>
+          <body>
+            <h1>🔒 Stockwerk ${sp} noch nicht freigeschaltet</h1>
+            <div id="timer">lade…</div>
+            <p>Freischaltung am 11. Juni 2025 um 07:00 Uhr</p>
+            <script>
+              // Countdown bis Event
+              const timerEl = document.getElementById('timer');
+              function update() {
+                const diff = new Date("2025-06-11T07:00:00") - new Date();
+                if (diff <= 0) {
+                  location.href = location.pathname + '?stock=${sp}';
+                  return;
+                }
+                const d = Math.floor(diff/86400000);
+                const h = Math.floor((diff%86400000)/3600000);
+                const m = Math.floor((diff%3600000)/60000);
+                const s = Math.floor((diff%60000)/1000);
+                timerEl.textContent = 
+                  \`\${d} Tage \${h} Std \${m} Min \${s} Sek\`;
+              }
+              setInterval(update,1000);
+              update();
+            <\/script>
+          </body>`;
+      }
+    })();
+  </script>
+  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
