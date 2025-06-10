@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <!DOCTYPE html>
+<html lang="de">
+<head>
+  <!-- ★ Pre-Event Block ganz oben ★ -->
   <script>
   (function(){
     const sp    = new URLSearchParams(location.search).get('stock');
     const now   = new Date();
     const event = new Date("2025-06-11T07:00:00");
-
+    // Vor Freischaltung nur Timer‐Screen für stock=1–4
     if (["1","2","3","4"].includes(sp) && now < event) {
       document.documentElement.innerHTML = `
         <head>
@@ -22,7 +26,7 @@
               align-items:center;
               height:100vh;
               font-family:'Segoe UI',sans-serif;
-              background: linear-gradient(to bottom,#e0f7fa,#ffffff);
+              background:linear-gradient(to bottom,#e0f7fa,#ffffff);
               color:#00796b;
               text-align:center;
             }
@@ -45,11 +49,12 @@
                   location.href = location.pathname + '?stock=${sp}';
                   return;
                 }
-                const days = Math.floor(d/86400000);
-                const hrs  = Math.floor((d%86400000)/3600000);
-                const min  = Math.floor((d%3600000)/60000);
-                const sec  = Math.floor((d%60000)/1000);
-                tEl.textContent = days + ' Tage ' + hrs + ' Std ' + min + ' Min ' + sec + ' Sek';
+                const days = Math.floor(d/86400000),
+                      hrs  = Math.floor((d%86400000)/3600000),
+                      min  = Math.floor((d%3600000)/60000),
+                      sec  = Math.floor((d%60000)/1000);
+                tEl.textContent =
+                  days + ' Tage ' + hrs + ' Std ' + min + ' Min ' + sec + ' Sek';
               }
               setInterval(upd,1000);
               upd();
@@ -277,7 +282,7 @@
       justify-content:center;
       margin-bottom:1em;
     }
-    #leaderboard, #dailyLeaderboard, #lehrerliste {
+    #leaderboard, #dailyLeaderboard, #Dozierendenliste {
       flex:1;
       border:2px solid #00796b;
       padding:1em;
@@ -456,7 +461,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <div id="leaderboard"></div>
       <div id="dailyLeaderboard"></div>
     </div>
-    <div id="lehrerliste"></div>
+    <div id="Dozierendenliste"></div>
   </div>
 
   <div id="statistik"></div>
@@ -552,7 +557,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const sel = document.getElementById('klasse');
       kl.forEach(k => sel.append(new Option(k,k)));
       sel.append(Object.assign(new Option('─────────────',''),{disabled:true}));
-      sel.append(new Option('👩‍🏫 Lehrerteam','Lehrerteam'));
+      sel.append(new Option('👩‍🏫 Dozierendenteam','Dozierendenteam'));
 
       // Treppen-Orakel
       const sprueche = [
@@ -652,7 +657,7 @@ window.addEventListener('DOMContentLoaded', () => {
     function ranglisteAktualisieren(){
       const sch = [], leh = [];
       Object.entries(daten).forEach(([k,v])=>{
-        if(k==='Lehrerteam') leh.push([k,v]);
+        if(k==='Dozierendenteam') leh.push([k,v]);
         else sch.push([k,v]);
       });
       sch.sort((a,b)=>b[1]-a[1]);
@@ -665,7 +670,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const lp = leh[0]?.[1]||0;
       document.getElementById('lehrerliste').innerHTML =
         `<h3>📚 Lehrpersonen</h3>
-         <p>👨‍🏫 Lehrerteam: ${lp} Punkte (außer Konkurrenz)</p>`;
+         <p>👨‍🏫 Dozierendenteam: ${lp} Punkte (außer Konkurrenz)</p>`;
     }
 
     // Statistik
