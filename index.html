@@ -1,141 +1,141 @@
 <!DOCTYPE html>
 <html lang="de">
-<Kopf>
-  <Meta Zeichensatz="UTF-8">
-  <Meta Name="Ansichtsfenster"Inhalt="Breite=Gerätebreite, Anfangsmaßstab=1">
-  <Titel>XUND Treppen-Challenge</Titel>
-  <Stil>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XUND Treppen-Challenge</title>
+  <style>
     /* Grundlayout */
-    Körper{
-      Marge: 0;
-      Polsterung: 0;
-      Schriftfamilie: „Segoe-Benutzeroberfläche“,serifenlos;
-      Hintergrund: linearer Gradient(nach unten, #e0f7fa, #ffffff);
-      Farbe: #004d40;
-      Anzeige:biegen;
-      Flexrichtung:Spalte;
-      Elemente ausrichten:Center;
-      Inhalt ausrichten:Center;
-      Mindesthöhe: 100vh;
-      Textausrichtung:Center;
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      color: #004d40;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
     }
-    h1{
-      Schriftgröße: 2.2rem;
-      Rand unten: 0,2sie;
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.2em;
     }
-    h2{
-      Schriftgröße: 1,5rem;
-      Marge: 0,5sie 0 0,2sie;
+    h2 {
+      font-size: 1.5rem;
+      margin: 0.5em 0 0.2em;
     }
-    #Timer{
-      Schriftgröße: 1.8rem;
-      Schriftstärke:deutlich;
-      Rand unten: 1sie;
+    #timer {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 1em;
     }
-    P.Untertitel{
-      Schriftgröße: 1rem;
-      Rand unten: 1,5sie;
+    p.subtitle {
+      font-size: 1rem;
+      margin-bottom: 1.5em;
     }
     /* Flyer-Box */
-    .Flyer{
-      maximale Breite: 600px;
-      Hintergrund: #ffffffcc;
-      Hintergrundfilter: verwischen(4px);
-      Randradius: 12px;
-      Kastenschatten: 0 4px 12px rgba(0,0,0,0,1);
-      Polsterung: 1,5sie;
-      Rand oben: 1sie;
-      Textausrichtung:links;
+    .flyer {
+      max-width: 600px;
+      background: #ffffffcc;
+      backdrop-filter: blur(4px);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 1.5em;
+      margin-top: 1em;
+      text-align: left;
     }
-    .Flyer h3{
-      Rand oben: 1sie;
-      Farbe: #00796b;
+    .flyer h3 {
+      margin-top: 1em;
+      color: #00796b;
     }
-    .Flyer ul{
-      Listenstil:keiner;
-      Polsterung: 0;
+    .flyer ul {
+      list-style: none;
+      padding: 0;
     }
-    .Flyer li{
-      Marge: 0,5sie 0;
-      Zeilenhöhe: 1.4;
+    .flyer li {
+      margin: 0.5em 0;
+      line-height: 1.4;
     }
-    .Flyer li::vor{
-      Inhalt: "▶ ";
-      Farbe: #00796b;
+    .flyer li::before {
+      content: "▶ ";
+      color: #00796b;
     }
-    .Logo{
-      Breite: 120px;
-      Rand unten: 1sie;
+    .logo {
+      width: 120px;
+      margin-bottom: 1em;
     }
-    /* Mobil */
-    @Medien(maximale Breite: 480px) {
-      Körper{Polsterung: 0,5sie; }
-      .Flyer{Polsterung: 1sie; }
-      h1{Schriftgröße: 1.8rem; }
-      #Timer{Schriftgröße: 1.4rem; }
+    /* Mobile */
+    @media (max-width: 480px) {
+      body { padding: 0.5em; }
+      .flyer { padding: 1em; }
+      h1 { font-size: 1.8rem; }
+      #timer { font-size: 1.4rem; }
     }
-  </Stil>
-</Kopf>
-<Körper>
+  </style>
+</head>
+<body>
 
   <!-- Logo -->
-  <img Quelle="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"alt="XUND Logo"Klasse="Logo">
+  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="XUND Logo" class="logo">
 
   <!-- Hauptüberschrift -->
   <h1>🚧 Stockwerk noch gesperrt</h1>
-  <P Klasse="Untertitel">Du hast Zugriff auf das Event erst ab dem 11. Juni 2025, 07:00 Uhr.</P>
+  <p class="subtitle">Du hast Zugriff auf das Event erst ab dem 11. Juni 2025, 07:00 Uhr.</p>
 
   <!-- Countdown -->
-  <div Ausweis="Timer">lade…</div>
+  <div id="timer">lade…</div>
 
   <!-- Ablauf / Flyer-Anleitung -->
-  <div Klasse="Flyer">
+  <div class="flyer">
     <h3>Die Bewegungskampagne an der XUND</h3>
-    <P><stark>11. Juni – 18. Juni 2025</stark></P>
-    <P>Mach mit und bring Schwung in deinen Alltag!</P>
+    <p><strong>11. Juni – 18. Juni 2025</strong></p>
+    <p>Mach mit und bring Schwung in deinen Alltag!</p>
 
     <h3>🚶‍♀️ Warum mitmachen?</h3>
     <ul>
-      <li>Du stärkst Herz & Kreislauf</li>
+      <li>Du stärkst Herz &amp; Kreislauf</li>
       <li>Du bringst Kopf und Stimmung in Bewegung</li>
       <li>Du tust etwas Gutes – für dich und deine Klasse</li>
     </ul>
 
-    <h3>🏆 So funktioniert's</h3>
+    <h3>🏆 So funktioniert’s</h3>
     <ul>
       <li>Nimm die Treppe – statt Lift oder Rolltreppe</li>
-      <li>Scannen Sie die QR-Codes zwischen den Etagen vor Ihrem Zielstockwerk</li>
+      <li>Scanne die QR-Codes zwischen den Etagen vor deinem Zielstockwerk</li>
       <li>Sammle Punkte für deine Klasse</li>
       <li>Am 18. Juni 2025 gewinnt die beste Klasse ein Glace!</li>
     </ul>
 
-    <P><sie>Bonus:</sie>Nach 10 Einträgen darfst du am Glücksrad drehen und Zusatzpunkte gewinnen!<br>
-    Quiz: Einmal täglich kannst du am Präventionsquiz teilnehmen und weitere Punkte sammeln!</P>
+    <p><em>Bonus:</em> Nach 10 Einträgen darfst du am Glücksrad drehen und Zusatzpunkte gewinnen!<br>
+    Quiz: Einmal täglich kannst du am Präventionsquiz teilnehmen und weitere Punkte sammeln!</p>
   </div>
 
   <!-- Countdown-Skript -->
-  <Skript>
-    (Funktion(){
-      Konstante tel    = dokumentieren.getElementById('Timer');
-      Konstante Ziel = neu Datum("2025-06-11T07:00:00");
-      Funktion aktualisieren() {
-        Konstante Unterschied = Ziel - neu Datum();
-        Wenn (Unterschied <= 0) {
-          // ab jetzt normale Seite geladen
-          Fenster.Standort = Fenster.Standort.Pfadname + Fenster.Standort.suchen;
-          zurückkehren;
+  <script>
+    (function(){
+      const tEl    = document.getElementById('timer');
+      const target = new Date("2025-06-11T07:00:00");
+      function update() {
+        const diff = target - new Date();
+        if (diff <= 0) {
+          // ab jetzt normale Seite laden
+          window.location = window.location.pathname + window.location.search;
+          return;
         }
-        Konstante Tage = Mathe.Boden(Unterschied/86400000),
-              Std.  = Mathe.Boden((Unterschied%86400000)/3600000),
-              Min  = Mathe.Boden((Unterschied%3600000)/60000),
-              Sek.  = Mathe.Boden((Unterschied%60000)/1000);
-        tel.textContent = 
-          `${Tage}Tage  ${Std.}Std  ${Min}Mindest  ${Sek.}Sek`;
+        const days = Math.floor(diff/86400000),
+              hrs  = Math.floor((diff%86400000)/3600000),
+              min  = Math.floor((diff%3600000)/60000),
+              sec  = Math.floor((diff%60000)/1000);
+        tEl.textContent = 
+          `${days} Tage  ${hrs} Std  ${min} Min  ${sec} Sek`;
       }
-      Intervall festlegen(aktualisieren, 1000);
-      aktualisieren();
+      setInterval(update, 1000);
+      update();
     })();
-  </Skript>
+  </script>
 
-</Körper>
+</body>
 </html>
