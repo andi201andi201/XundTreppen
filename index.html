@@ -5,24 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Treppen-Challenge</title>
 
-  <!-- Passwort- / Stock-Param-Check -->
-  <script>
-    (function(){
-      const allowed = ['1','2','3','4'];
-      const sp = new URLSearchParams(location.search).get('stock');
-      // wenn stock nicht gültig, Passwort fragen
-      if (!allowed.includes(sp)) {
+<!-- Passwort- / Stock-Param-Check mit 5-Min-Timeout für normale Nutzer -->
+<script>
+  (function(){
+    const allowed = ['1','2','3','4'];
+    const sp = new URLSearchParams(location.search).get('stock');
+
+    // Admin-Status aus localStorage
+    const isAdmin = localStorage.getItem('admin') === 'true';
+
+    // Dauer bis Timeout (5 Min)
+    const SESSION_DURATION = 5 * 60 * 1000;
+
+    // Helper: zurück zur Login-Seite
+    function logout() {
+      alert('🕒 Deine Sitzung ist abgelaufen. Bitte melde dich neu an.');
+      window.location.href = 'index.html';
+    }
+
+    if (!isAdmin) {
+      const loginTime = sessionStorage.getItem('loginTime');
+
+      // Wenn Session abgelaufen ist
+      if (loginTime && (Date.now() - loginTime) > SESSION_DURATION) {
+        sessionStorage.removeItem('loginTime');
+        logout();
+        return;
+      }
+
+      // Passwort-Abfrage, wenn noch nicht eingeloggt oder stock ungültig
+      if (!allowed.includes(sp) || !loginTime) {
         const pw = prompt('Passwort für Hauptseite:');
         if (pw !== 'Bistroboykott') {
           alert('❌ Falsches Passwort!');
-          // redirect zurück oder auf spez. Login-Seite
-          window.location.href = 'index.html'; 
-          // oder: history.back();
+          window.location.href = 'index.html';
+          return;
         }
-        // wenn korrekt, einfach weiter laden
+        // Login erfolgreich → Zeit merken
+        sessionStorage.setItem('loginTime', Date.now());
       }
-    })();
-  </script>
+
+      // Automatischer Logout nach SESSION_DURATION
+      setTimeout(() => {
+        sessionStorage.removeItem('loginTime');
+        logout();
+      }, SESSION_DURATION);
+    }
+    // Admins überspringen das Timeout
+  })();
+</script>
 
   <style>
 /* -------- Selfie-Station Header -------- */
