@@ -3,139 +3,725 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>XUND Treppen-Challenge</title>
-  <style>
-    /* Grundlayout */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
-      color: #004d40;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.2rem;
-      margin-bottom: 0.2em;
-    }
-    h2 {
-      font-size: 1.5rem;
-      margin: 0.5em 0 0.2em;
-    }
-    #timer {
-      font-size: 1.8rem;
-      font-weight: bold;
-      margin-bottom: 1em;
-    }
-    p.subtitle {
-      font-size: 1rem;
-      margin-bottom: 1.5em;
-    }
-    /* Flyer-Box */
-    .flyer {
-      max-width: 600px;
-      background: #ffffffcc;
-      backdrop-filter: blur(4px);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 1.5em;
-      margin-top: 1em;
-      text-align: left;
-    }
-    .flyer h3 {
-      margin-top: 1em;
-      color: #00796b;
-    }
-    .flyer ul {
-      list-style: none;
-      padding: 0;
-    }
-    .flyer li {
-      margin: 0.5em 0;
-      line-height: 1.4;
-    }
-    .flyer li::before {
-      content: "▶ ";
-      color: #00796b;
-    }
-    .logo {
-      width: 120px;
-      margin-bottom: 1em;
-    }
-    /* Mobile */
-    @media (max-width: 480px) {
-      body { padding: 0.5em; }
-      .flyer { padding: 1em; }
-      h1 { font-size: 1.8rem; }
-      #timer { font-size: 1.4rem; }
-    }
-  </style>
-</head>
-<body>
+  <title>Treppen-Challenge</title>
 
-  <!-- Logo -->
-  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png" alt="XUND Logo" class="logo">
-
-  <!-- Hauptüberschrift -->
-  <h1>🚧 Stockwerk noch gesperrt</h1>
-  <p class="subtitle">Du hast Zugriff auf das Event erst ab dem 11. Juni 2025, 07:00 Uhr.</p>
-
-  <!-- Countdown -->
-  <div id="timer">lade…</div>
-
-  <!-- Ablauf / Flyer-Anleitung -->
-  <div class="flyer">
-    <h3>Die Bewegungskampagne an der XUND</h3>
-    <p><strong>11. Juni – 18. Juni 2025</strong></p>
-    <p>Mach mit und bring Schwung in deinen Alltag!</p>
-
-    <h3>🚶‍♀️ Warum mitmachen?</h3>
-    <ul>
-      <li>Du stärkst Herz &amp; Kreislauf</li>
-      <li>Du bringst Kopf und Stimmung in Bewegung</li>
-      <li>Du tust etwas Gutes – für dich und deine Klasse</li>
-    </ul>
-
-    <h3>🏆 So funktioniert’s</h3>
-    <ul>
-      <li>Nimm die Treppe – statt Lift</li>
-      <li>Scanne die QR-Codes zwischen den Etagen vor deinem Zielstockwerk</li>
-      <li>Sammle Punkte für deine Klasse</li>
-      <li>Am 18. Juni 2025 gewinnt die beste Klasse ein Glace!</li>
-    </ul>
-
-    <p><em>Bonus:</em> Nach 10 Einträgen darfst du am Glücksrad drehen und Zusatzpunkte gewinnen!<br>
-    Quiz: Einmal täglich kannst du am Präventionsquiz teilnehmen und weitere Punkte sammeln!</p>
-  </div>
-
-  <!-- Countdown-Skript -->
+  <!-- Passwort- / Stock-Param-Check -->
   <script>
     (function(){
-      const tEl    = document.getElementById('timer');
-      const target = new Date("2025-06-11T07:00:00");
-      function update() {
-        const diff = target - new Date();
-        if (diff <= 0) {
-          // ab jetzt normale Seite laden
-          window.location = window.location.pathname + window.location.search;
-          return;
+      const allowed = ['1','2','3','4'];
+      const sp = new URLSearchParams(location.search).get('stock');
+      // wenn stock nicht gültig, Passwort fragen
+      if (!allowed.includes(sp)) {
+        const pw = prompt('Passwort für Hauptseite:');
+        if (pw !== 'Bistroboykott') {
+          alert('❌ Falsches Passwort!');
+          // redirect zurück oder auf spez. Login-Seite
+          window.location.href = 'index.html'; 
+          // oder: history.back();
         }
-        const days = Math.floor(diff/86400000),
-              hrs  = Math.floor((diff%86400000)/3600000),
-              min  = Math.floor((diff%3600000)/60000),
-              sec  = Math.floor((diff%60000)/1000);
-        tEl.textContent = 
-          `${days} Tage  ${hrs} Std  ${min} Min  ${sec} Sek`;
+        // wenn korrekt, einfach weiter laden
       }
-      setInterval(update, 1000);
-      update();
     })();
   </script>
 
+  <style>
+/* -------- Selfie-Station Header -------- */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5em 1em;
+  background: #ffffffcc;
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  height: 120px;
+  transition: transform .3s;
+}
+.logo:hover {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+/* runder, schwebender Selfie-Button */
+.selfie-btn {
+  display: inline-flex;           /* Flex-Container */
+  align-items: center;            /* vertikal mittig */
+  justify-content: center;        /* horizontal mittig */
+  gap: 0.6em;                     /* Abstand Icon ⇄ Text */
+  white-space: nowrap;            /* keine Zeilenumbrüche */
+  background: linear-gradient(135deg, #00796b, #004d40);
+  color: #fff;
+  padding: .6em 1.4em;            /* mehr Platz, verhindert Abschneiden */
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Hover- & Active-Effekte */
+.selfie-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+.selfie-btn:active::after {
+  transform: translate(-50%,-50%) scale(15);
+  opacity: 0;
+}
+
+/* Pulsierendes Kamera-Icon */
+.camera-icon {
+  font-size: 1.3em;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.2); }
+}
+
+/* Klick-Ripple */
+.selfie-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 10px; height: 10px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  transform: translate(-50%,-50%) scale(1);
+  opacity: 0;
+  transition: transform .6s ease-out, opacity .6s ease-out;
+  pointer-events: none;
+}
+
+/* Tooltip beim Hover */
+.selfie-btn:hover::before {
+  content: "Mach ein Selfie!";
+  position: absolute;
+  bottom: calc(100% + .4em);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #004d40;
+  color: #fff;
+  padding: .3em .6em;
+  border-radius: 4px;
+  font-size: .85em;
+  white-space: nowrap;
+  opacity: .9;
+}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2em;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      color: #333;
+      max-width: 700px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1em 0;
+    }
+   /* header img.logo { height: 80px; } */
+    h1 { color:#00796b; text-align:center; margin-bottom:0.5em; }
+
+    /* -------- Orakel -------- */
+    #orakel {
+      text-align:center;
+      margin:1em auto;
+      padding:10px;
+      border:2px dashed #ff9800;
+      border-radius:8px;
+      background:#fff8e1;
+      color:#795548;
+    }
+
+    /* -------- Countdown & Quiz -------- */
+#countQuizBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  /* border: 2px solid #00796b; */
+  padding: .5em 0;             /* optional: nur vertikal etwas Abstand */
+  margin-bottom: 1em;
+  background: transparent;     /* Falls du einen Hintergrund willst, hier anpassen */
+}
+    #countdown { font-weight:bold; }
+    a.quiz-link {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border-radius:4px;
+      text-decoration:none;
+      font-size:1.1em;
+    }
+/* ————— Quiz-Button ————— */
+.quiz-box .quiz-link {
+  display: inline-block;
+  padding: 0.6em 1.2em;
+  background: #fff;
+  color: #e91e63;
+  border: 2px solid #e91e63;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.quiz-box .quiz-link:hover {
+  background: #fce4ec;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.quiz-box .quiz-link:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+@media (max-width:480px) {
+  #countQuizBar { flex-direction:column; }
+  .bar-item { width:100%; justify-content:center; }
+}
+    /* -------- Formulare -------- */
+    label, select, button, input {
+      display:block;
+      margin:1em auto;
+      font-size:1.1em;
+      text-align:center;
+    }
+    select, input { padding:.4em; width:80%; }
+    button {
+      padding:.4em 1em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    button:hover { background:#004d40; }
+    button:disabled { background:#ccc!important; cursor:not-allowed!important; }
+
+    /* -------- Ranglisten -------- */
+    #leaderContainer { margin-top:1em; }
+    #topLeaderContainer {
+      display:flex;
+      gap:1em;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:1em;
+    }
+    #leaderboard, #dailyLeaderboard, #lehrerliste {
+      flex:1;
+      border:2px solid #00796b;
+      padding:1em;
+      border-radius:6px;
+    }
+    #dailyLeaderboard { background:#f9f9f9; opacity:.7; }
+
+    /* -------- Statistik -------- */
+    #statistik { text-align:center; margin-top:1em; }
+
+    /* -------- Admin -------- */
+    #admin { text-align:center; margin-top:2em; }
+
+    /* -------- Glücksrad Modal -------- */
+    #modalOverlay {
+      display:none;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      align-items:center; justify-content:center;
+      z-index:1000;
+    }
+    #modalContent {
+      background:#fff;
+      border-radius:8px;
+      padding:1em;
+      text-align:center;
+      max-width:320px;
+      margin:auto;
+    }
+    #svgContainer {
+      position:relative;
+      width:280px; height:280px;
+      margin:auto;
+      padding:5px;
+      border:5px solid #00796b;
+      border-radius:50%;
+      box-sizing:content-box;
+    }
+    #zeiger {
+      position:absolute; top:-30px; left:50%;
+      transform:translateX(-50%);
+      border-left:20px solid transparent;
+      border-right:20px solid transparent;
+      border-top:30px solid #333;
+      z-index:2;
+    }
+    #svgRad {
+      width:100%; height:100%;
+      border-radius:50%;
+      transition:transform 5s ease-out;
+    }
+    #centerCircle { fill:#fff; stroke:#333; stroke-width:4; }
+    #gewinnPopup { display:none; margin-top:1em; }
+    #gewinnPopup button {
+      margin-top:1em;
+      padding:.5em 1.5em;
+      background:#00796b;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
+
+    /* -------- Animationen -------- */
+    .animate-check { animation:bounce .6s; display:inline-block; }
+    @keyframes bounce { 0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)} }
+    .leader { font-weight:bold; color:gold; animation:glow 1s infinite alternate; }
+    @keyframes glow { from{text-shadow:0 0 10px gold} to{text-shadow:0 0 20px orange} }
+    .icecream {
+      position: fixed; bottom: -50px; font-size:2rem;
+      opacity:0.8;
+      animation: riseIceCream 2s ease-out forwards;
+      pointer-events:none;
+    }
+    @keyframes riseIceCream {
+      0%   { transform: translateY(0) scale(1); opacity:0.8; }
+      50%  { opacity:1; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity:0; }
+    }
+  </style>
+
+  <!--
+    Stockwerk Sperre + Link-Redirects
+  -->
+  <script>
+    function lockStock() {
+      const sp = new URLSearchParams(location.search).get('stock');
+      if (['1','2','3','4'].includes(sp)) {
+        const el = document.getElementById('stockwerk');
+        el.value = sp;
+        el.disabled = true;
+      }
+    }
+    function setupRedirects() {
+      const stock = new URLSearchParams(location.search).get('stock') || '';
+      document.getElementById('quizLink').href    = stock ? `quiz.html?stock=${stock}`    : 'quiz.html';
+      document.getElementById('selfieLink').href  = stock ? `selfie.html?stock=${stock}`  : 'selfie.html';
+      document.getElementById('backLink').href    = stock ? `index.html?stock=${stock}`  : 'index.html';
+    }
+window.addEventListener('DOMContentLoaded', () => {
+  lockStock();
+  setupRedirects();
+
+  const btn       = document.getElementById('enterBtn');
+  const stockHint = document.getElementById('stockHint');
+  const last      = +localStorage.getItem('lastTime') || 0;
+  const now       = Date.now();
+  const timeout   = 20 * 60 * 1000; // 20 Minuten in ms
+
+  // falls innerhalb der Sperrzeit
+  if (now - last < timeout) {
+    btn.disabled = true;
+    const remainingMin = Math.ceil((timeout - (now - last)) / 60000);
+    stockHint.textContent = `⏳ Bitte warte noch ${remainingMin} Minute(n).`;
+
+    // nach Ablauf wieder freigeben
+    setTimeout(() => {
+      btn.disabled = false;
+      stockHint.textContent = '';
+    }, timeout - (now - last));
+  }
+});
+    window.addEventListener('pageshow', lockStock);
+  </script>
+</head>
+<body>
+
+<header class="main-header">
+  <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
+       alt="Logo" class="logo">
+  <button id="selfieLink" class="selfie-btn"
+          onclick="location.href='selfie.html'+window.location.search">
+    <span class="camera-icon">📸</span>
+    Selfie-Station
+  </button>
+</header>
+
+  <h1>Treppen-Challenge</h1>
+<div class="bar-item countdown-box">
+  <span class="icon">⏳</span>
+  <span id="countdown">Lade…</span>
+</div>
+  <div id="orakel">🔮 Lade das Treppen-Orakel…</div>
+
+<div id="countQuizBar">
+  <div class="bar-item quiz-box">
+    <a id="quizLink" class="quiz-link">
+  <span class="quiz-icon">🚀</span>
+  Zum täglichen Quiz
+</a>
+  </div>
+</div>
+
+  <label for="klasse">Wähle deine Klasse:</label>
+  <select id="klasse">
+    <option value="">--Bitte wählen--</option>
+  </select>
+
+  <label for="stockwerk">Angekommen im Stockwerk:</label>
+  <select id="stockwerk">
+    <option value="">-- Bitte wählen --</option>
+    <option value="1">1. Stock (1 Punkt)</option>
+    <option value="2">2. Stock (2 Punkte)</option>
+    <option value="3">3. Stock (3 Punkte)</option>
+    <option value="4">4. Stock (4 Punkte)</option>
+  </select>
+  <small id="stockHint" style="display:block;color:#d84315;text-align:center;">
+  </small>
+
+  <button id="enterBtn" onclick="punkteSpeichern()">Punkte eintragen</button>
+  <div id="output"></div>
+
+  <div id="leaderContainer">
+    <div id="topLeaderContainer">
+      <div id="leaderboard"></div>
+      <div id="dailyLeaderboard"></div>
+    </div>
+    <div id="lehrerliste"></div>
+  </div>
+
+  <div id="statistik"></div>
+
+  <div id="admin">
+    <h3>🔐 Adminbereich</h3>
+    <input type="password" id="adminpass" placeholder="Passwort">
+    <button onclick="adminLogin()">Einloggen</button>
+    <div id="adminControls" style="display:none;">
+      <button onclick="datenZuruecksetzen()">Punkte zurücksetzen</button>
+    </div>
+  </div>
+
+  <div id="modalOverlay">
+    <div id="modalContent">
+      <h3>🎉 Glückwunsch! Du darfst das Glücksrad drehen!</h3>
+      <div id="svgContainer">
+        <div id="zeiger"></div>
+        <svg id="svgRad" viewBox="0 0 250 250">
+          <g id="radSegmente"></g>
+          <circle id="centerCircle" cx="125" cy="125" r="40"/>
+        </svg>
+      </div>
+      <button id="spinBtn" onclick="dreheGluecksradSVG()">🎰 Jetzt drehen!</button>
+      <div id="gewinnPopup"><div id="gewinnText"></div><button onclick="hidePopup()">OK</button></div>
+    </div>
+  </div>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script>
+    // --- Firebase initialisieren ---
+    firebase.initializeApp({
+      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+      authDomain: "treppenchallenge2025.firebaseapp.com",
+      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "treppenchallenge2025",
+      storageBucket: "treppenchallenge2025.appspot.com",
+      messagingSenderId: "45698338369",
+      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+    });
+    const db = firebase.database();
+
+    // --- Globale State-Variablen ---
+    let daten = {}, _lastLeader = null, aktuelleDrehung = 0, currentSpinClass = null;
+    const colors = [
+      '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+      '#3498db','#9b59b6','#34495e','#16a085','#27ae60',
+      '#2980b9','#8e44ad','#2c3e50','#d35400','#c0392b',
+      '#f39c12','#7f8c8d'
+    ];
+    let segments = [50,25,10,10,...Array(8).fill(1),...Array(5).fill(2),...Array(4).fill(5)];
+    segments.sort(() => Math.random() - 0.5);
+    const comments = {
+      1: "💪 Ein Punkt ist besser als kein Punkt!",
+      2: "🔁 Weiter so – jeder Schritt zählt!",
+      5: "🚶‍♂️ Das summiert sich – dranbleiben!",
+      10: "🎯 Stark! 10 Bonuspunkte geholt!",
+      25: "🏅 WOW – 25 Punkte für dich!",
+      50: "👑 UNGLAUBLICH! 50 Punkte! Du Legende!"
+    };
+
+    // Hilfsfunktion: aktuelles Datum YYYY-MM-DD
+    function getToday() {
+      return new Date().toISOString().slice(0,10);
+    }
+
+    // Countdown bis Challenge-Ende
+    (function initCountdown(){
+      const end = new Date("2025-06-18T12:00:00").getTime();
+      setInterval(() => {
+        const diff = end - Date.now();
+        if(diff < 0) {
+          document.getElementById("countdown").textContent = "🏁 Challenge beendet!";
+          return;
+        }
+        const days = Math.floor(diff/86400000),
+              hrs  = new Date(diff).getUTCHours(),
+              min  = new Date(diff).getUTCMinutes();
+        document.getElementById("countdown").textContent =
+          ` Noch ${days} Tage, ${hrs} Stunden, ${min} Minuten`;
+      }, 1000);
+    })();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Klassenliste befüllen
+      const kl = [
+        "22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
+        "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
+        "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
+        "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3"
+      ];
+      const sel = document.getElementById('klasse');
+      kl.forEach(k => sel.append(new Option(k,k)));
+      sel.append(Object.assign(new Option('─────────────',''),{disabled:true}));
+      sel.append(new Option('👩‍🏫 Dozierendenteam','Dozierendenteam'));
+
+      // Treppen-Orakel
+      const sprueche = [
+        "Heute werden dir die Treppen besonders freundlich gesinnt sein! 😃",
+        "Vorsicht! Die zweite Stufe könnte heute mürrisch sein. 🙈",
+        "Ein Stockwerk ist nur eine Stufe nach der anderen – du schaffst das! 💪",
+        "Heute erklimmst du die Treppen mit der Eleganz eines Pinguins. 🐧✨",
+        "Die Stufen flüstern: Heute erreichst du neue Höhen! 🌄",
+        "Ein Schritt nach oben ist besser als zwei Schritte zurück. 🚶‍♂️⬆️",
+        "Heute fühlst du dich so leicht wie ein Schmetterling beim Treppensteigen. 🦋",
+        "Die Treppenmeister schauen heute bewundernd auf dich herab. 🧙‍♂️👀",
+        "Vorsicht vor der 13. Stufe – sie hat heute schlechte Laune. 😬",
+        "Heute gelingt dir jeder Schritt besonders elegant! 🕺"
+      ];
+      setTimeout(()=>{
+        document.getElementById('orakel').textContent =
+          '🔮 ' + sprueche[Math.floor(Math.random()*sprueche.length)];
+      },1000);
+
+      // Glücksrad-Segmente zeichnen
+      zeichneSVGSegmente();
+
+      // Firebase-Listener auf Punkte-Änderung
+      db.ref('punkte').on('value', snap => {
+        daten = snap.val() || {};
+        ranglisteAktualisieren();
+        statistikAktualisieren();
+        const lead = Object.entries(daten).sort((a,b)=>b[1]-a[1])[0]?.[0];
+        if(_lastLeader && lead !== _lastLeader) {
+          confetti();
+          // Eisbonus
+          for(let i=0;i<5;i++){
+            const ic=document.createElement('div');
+            ic.textContent='🍦'; ic.className='icecream';
+            ic.style.left = 10+Math.random()*80+'vw';
+            ic.style.animationDelay = (i*0.2)+'s';
+            document.body.appendChild(ic);
+            ic.addEventListener('animationend', ()=>ic.remove());
+          }
+        }
+        _lastLeader = lead;
+      });
+
+      // Firebase-Listener für Tagesliste
+      db.ref('daily/' + getToday()).on('value', snap => {
+        renderDailyLeaderboard(snap.val() || {});
+      });
+    });
+
+    // Punkte eintragen
+    function punkteSpeichern(){
+      const k = document.getElementById('klasse').value;
+      const s = parseInt(document.getElementById('stockwerk').value,10);
+      const out = document.getElementById('output');
+      const btn = document.getElementById('enterBtn');
+      if(!k || isNaN(s)){
+        out.textContent = "Bitte alles auswählen.";
+        return;
+      }
+      const isAdmin = localStorage.getItem('admin')==='true';
+      const last = +localStorage.getItem('lastTime')||0;
+      const now  = Date.now();
+      if(!isAdmin && now - last < 20*60*1000){
+        out.textContent = "⏳ Bitte warte 20 Minuten.";
+        return;
+      }
+      localStorage.setItem('lastTime', now);
+      if(!isAdmin){
+        btn.disabled = true;
+        setTimeout(()=>btn.disabled=false, 20*60*1000);
+      }
+      const neu = (daten[k]||0) + s;
+      daten[k] = neu;
+      db.ref('punkte/'+k).set(neu);
+      db.ref('daily/'+getToday()+'/'+k).transaction(v => (v||0)+s);
+      out.innerHTML = `<span class="animate-check">✅ ${k} hat jetzt ${neu} Punkte.</span>`;
+      let cnt = +localStorage.getItem('eintraege')||0;
+      localStorage.setItem('eintraege', ++cnt);
+      if(cnt % 10 === 0){
+        currentSpinClass = k;
+        document.getElementById('modalOverlay').style.display = 'flex';
+        document.getElementById('spinBtn').disabled = false;
+      }
+    }
+
+    // Tages-Bestenliste
+    function renderDailyLeaderboard(data){
+      let html = '<h3>📅 Tagesbestenliste</h3>';
+      Object.entries(data).sort((a,b)=>b[1]-a[1]).forEach(([k,v],i)=>{
+        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':'';
+        html += `<p>${m} ${k}: ${v} Punkte</p>`;
+      });
+      document.getElementById('dailyLeaderboard').innerHTML = html;
+    }
+
+    // Gesamt-Rangliste + Lehrerliste
+    function ranglisteAktualisieren(){
+      const sch = [], leh = [];
+      Object.entries(daten).forEach(([k,v])=>{
+        if(k==='Dozierendenteam') leh.push([k,v]);
+        else sch.push([k,v]);
+      });
+      sch.sort((a,b)=>b[1]-a[1]);
+      let html = '<h3>🏆 Rangliste</h3>';
+      sch.forEach(([k,v],i)=>{
+        const m = i==0?'🥇':i==1?'🥈':i==2?'🥉':' ';
+        html += `<p class="${i==0?'leader':''}">${m} ${k}: ${v} Punkte</p>`;
+      });
+      document.getElementById('leaderboard').innerHTML = html;
+      const lp = leh[0]?.[1]||0;
+      document.getElementById('lehrerliste').innerHTML =
+        `<h3>📚 Lehrpersonen</h3>
+         <p>👨‍🏫 Dozierendenteam: ${lp} Punkte (außer Konkurrenz)</p>`;
+    }
+
+    // Statistik
+    function statistikAktualisieren(){
+      const total = Object.values(daten).reduce((a,b)=>a+b,0),
+            schritte = total*20,
+            kcal = (total*0.17).toFixed(1),
+            hm = (total*3.3).toFixed(1);
+      document.getElementById('statistik').textContent =
+        `🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
+    }
+
+    // Konfetti
+    function confetti(){
+      const cols=['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
+      for(let i=0;i<150;i++){
+        const d=document.createElement('div'), sz=4+Math.random()*8;
+        Object.assign(d.style,{
+          position:'fixed', width:`${sz}px`, height:`${sz}px`,
+          background:cols[Math.floor(Math.random()*cols.length)],
+          borderRadius:'50%', top:`${Math.random()*100}%`, left:`${Math.random()*100}%`,
+          pointerEvents:'none', opacity:'1', zIndex:1000,
+          transition:'opacity 1s ease-out,transform 1s ease-out'
+        });
+        document.body.appendChild(d);
+        setTimeout(()=>{
+          d.style.transform=`translateY(-${20+Math.random()*50}px)`;
+          d.style.opacity='0';
+        },50);
+        setTimeout(()=>d.remove(),1200+Math.random()*600);
+      }
+    }
+
+    // Glücksrad zeichnen
+    function zeichneSVGSegmente(){
+      const g=document.getElementById('radSegmente'), cx=125, cy=125, r=120, n=segments.length;
+      g.innerHTML = '';
+      segments.forEach((w,i)=>{
+        const start=360/n*i, end=start+360/n,
+              x1=cx+r*Math.cos(Math.PI/180*start),
+              y1=cy+r*Math.sin(Math.PI/180*start),
+              x2=cx+r*Math.cos(Math.PI/180*end),
+              y2=cy+r*Math.sin(Math.PI/180*end);
+        const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+        p.setAttribute('d',`M${cx},${cy} L${x1},${y1} A${r},${r} 0 0,1 ${x2},${y2} Z`);
+        p.setAttribute('fill',colors[i%colors.length]);
+        p.setAttribute('stroke','#fff'); p.setAttribute('stroke-width','2');
+        g.appendChild(p);
+        const mid=(start+end)/2,
+              tx=cx+(r-20)*Math.cos(Math.PI/180*mid),
+              ty=cy+(r-20)*Math.sin(Math.PI/180*mid),
+              t=document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',tx); t.setAttribute('y',ty);
+        t.setAttribute('transform',`rotate(${mid},${tx},${ty})`);
+        t.setAttribute('text-anchor','middle'); t.setAttribute('alignment-baseline','middle');
+        t.setAttribute('font-size','12'); t.setAttribute('fill','#fff');
+        t.textContent = w;
+        g.appendChild(t);
+      });
+    }
+
+    function getSegmentIndex(rot, count=segments.length){
+      let r = rot % 360; if(r<0) r +=360;
+      const ptr = 270, loc = (ptr - r + 360) % 360;
+      return Math.floor(loc / (360/count));
+    }
+
+    // Glücksrad drehen
+    function dreheGluecksradSVG(){
+      if(!currentSpinClass) return;
+      document.getElementById('spinBtn').disabled = true;
+      document.getElementById('gewinnPopup').style.display = 'none';
+      document.getElementById('gewinnText').innerHTML = '';
+      const n=segments.length, base=360/n;
+      const spins=4+Math.random()*2, offset=Math.random()*base;
+      aktuelleDrehung += spins*360 + offset;
+      const wheel = document.getElementById('svgRad');
+      wheel.style.transform = `rotate(${aktuelleDrehung}deg)`;
+      wheel.addEventListener('transitionend', ()=>{
+        const idx = getSegmentIndex(aktuelleDrehung);
+        const gew = segments[idx];
+        const alt = daten[currentSpinClass]||0, neu = alt+gew;
+        db.ref('punkte/'+currentSpinClass).set(neu);
+        document.getElementById('gewinnText').innerHTML =
+          `${comments[gew]}<br><strong>+${gew} Punkte</strong> für ${currentSpinClass}!`;
+        document.getElementById('gewinnPopup').style.display = 'block';
+      }, { once:true });
+    }
+
+    function hidePopup(){
+      document.getElementById('modalOverlay').style.display = 'none';
+      currentSpinClass = null;
+    }
+
+    // Admin-Login
+    function adminLogin(){
+      if(document.getElementById('adminpass').value === 'Bistroboykott'){
+        localStorage.setItem('admin','true');
+        document.getElementById('adminControls').style.display = 'block';
+        document.getElementById('stockHint').style.display = 'none';
+        document.getElementById('stockwerk').disabled = false;
+      } else {
+        alert('Falsches Passwort');
+      }
+    }
+
+    function datenZuruecksetzen(){
+      if(confirm('Punkte wirklich zurücksetzen?')){
+        db.ref('punkte').remove();
+        localStorage.removeItem('eintraege');
+        localStorage.removeItem('lastTime');
+        alert('Punkte zurückgesetzt.');
+      }
+    }
+  </script>
 </body>
 </html>
