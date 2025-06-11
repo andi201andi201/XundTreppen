@@ -219,7 +219,7 @@
       justify-content:center;
       margin-bottom:1em;
     }
-    #leaderboard, #dailyLeaderboard, #Dozierendenliste {
+    #leaderboard, #dailyLeaderboard, #Dzierendenliste {
       flex:1;
       border:2px solid #00796b;
       padding:1em;
@@ -398,7 +398,7 @@ window.addEventListener('DOMContentLoaded', () => {
       <div id="leaderboard"></div>
       <div id="dailyLeaderboard"></div>
     </div>
-    <div id="Dozierendenliste"></div>
+    <div id="Dzierendenliste"></div>
   </div>
 
   <div id="statistik"></div>
@@ -590,7 +590,7 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('dailyLeaderboard').innerHTML = html;
     }
 
-    // Gesamt-Rangliste + Dozierendenliste
+    // Gesamt-Rangliste + Dzierendenliste
     function ranglisteAktualisieren(){
       const sch = [], leh = [];
       Object.entries(daten).forEach(([k,v])=>{
@@ -605,7 +605,7 @@ window.addEventListener('DOMContentLoaded', () => {
       });
       document.getElementById('leaderboard').innerHTML = html;
       const lp = leh[0]?.[1]||0;
-      document.getElementById('Dozierendenliste').innerHTML =
+      document.getElementById('Dzierendenliste').innerHTML =
         `<h3>📚 Lehrpersonen</h3>
          <p>👨‍🏫 Dozierendenteam: ${lp} Punkte (außer Konkurrenz)</p>`;
     }
