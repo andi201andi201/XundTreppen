@@ -5,7 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Selfie-Station</title>
   <style>
-    /* ... (dein bisheriges CSS bleibt unverändert) ... */
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin:0; padding:0; }
+    .container {
+      max-width:700px; margin:2em auto; background:#fff;
+      border:3px solid #558b2f; border-radius:8px; padding:1em;
+      box-shadow:0 0 10px rgba(0,0,0,0.1); text-align:center;
+    }
+    h1 { color:#558b2f; margin-bottom:.5em; }
+    h2 { color:#33691e; margin-top:1em; }
+    h3 { color:#558b2f; margin:.8em 0 .3em; }
+    a.back {
+      color:#558b2f; text-decoration:none; display:inline-block;
+      margin-bottom:1em; font-size:1.1em;
+    }
+    a.back:hover { text-decoration:underline; }
+    video {
+      border:2px solid #558b2f; border-radius:4px;
+      margin:1em auto; display:block; object-fit:cover;
+      width:100%; max-width:280px; height:auto;
+    }
+    button {
+      background:#558b2f; color:#fff; border:none;
+      padding:.5em 1em; border-radius:4px; cursor:pointer;
+      font-size:1em; margin-top:.5em;
+    }
+    button:disabled {
+      background:#ccc; cursor:not-allowed;
+    }
+    button:hover:not(:disabled) { background:#33691e; }
+    #uploadStatus { margin-top:.5em; font-weight:bold; }
+    #selfieGallery {
+      display:flex; flex-wrap:wrap; justify-content:center;
+    }
+    #selfieGallery img {
+      width:100px; margin:.5em; border:2px solid #00796b;
+      border-radius:4px; cursor:pointer;
+    }
+    #lightboxOverlay {
+      display:none; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.8);
+      justify-content:center; align-items:center; z-index:2000;
+    }
+    #lightboxOverlay img {
+      max-width:90%; max-height:90%;
+      border:4px solid #fff; border-radius:4px;
+    }
   </style>
   <script>
     function setupRedirects() {
@@ -22,14 +66,17 @@
     <h1>Selfie-Station</h1>
     <a id="backLink" class="back">« Zurück zur Challenge</a>
 
+    <!-- Video-Preview & Button -->
     <video id="video" autoplay muted playsinline></video>
     <button id="snapBtn" disabled>Selfie machen</button>
     <div id="uploadStatus"></div>
 
+    <!-- Galerie -->
     <h2>Selfies von heute &amp; gestern</h2>
     <div id="selfieGallery"></div>
   </div>
 
+  <!-- Lightbox -->
   <div id="lightboxOverlay" onclick="hideLightbox()">
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
@@ -37,7 +84,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
-    // 1) Firebase initialisieren
+    // --- Firebase initialisieren ---
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
       authDomain: "treppenchallenge2025.firebaseapp.com",
@@ -49,15 +96,15 @@
     });
     const db = firebase.database();
 
-    // 2) Kamerazugriff
+    // --- Kamera Setup ---
     const video   = document.getElementById('video');
     const snapBtn = document.getElementById('snapBtn');
     const status  = document.getElementById('uploadStatus');
     const gallery = document.getElementById('selfieGallery');
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
+    navigator.mediaDevices.getUserMedia({ video:true })
+      .then(s => {
+        video.srcObject = s;
         video.onloadedmetadata = () => {
           video.play();
           snapBtn.disabled = false;
@@ -74,7 +121,7 @@
       const canvas = document.createElement('canvas');
       canvas.width  = video.videoWidth;
       canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.getContext('2d').drawImage(video,0,0);
 
       canvas.toBlob(blob => {
         const reader = new FileReader();
@@ -82,37 +129,35 @@
           const base64 = reader.result.split(',')[1];
           status.textContent = '⏳ Upload zu Imgur…';
           fetch('https://api.imgur.com/3/image', {
-            method: 'POST',
-            headers: {
-              Authorization: 'Client-ID dfebab139250adf',
-              'Content-Type': 'application/json'
+            method:'POST',
+            headers:{
+              Authorization:'Client-ID dfebab139250adf',
+              'Content-Type':'application/json'
             },
-            body: JSON.stringify({ image: base64, type: 'base64' })
+            body: JSON.stringify({ image:base64, type:'base64' })
           })
-          .then(res => res.json())
-          .then(json => {
-            if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
-            const url = json.data.link;
+          .then(r=>r.json())
+          .then(json=>{
+            if(!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
+            const url   = json.data.link;
             const today = getDateString(0);
             return db.ref(`selfies/${today}`).push(url);
           })
-          .then(() => {
+          .then(()=>{
             status.textContent = '✅ Hochgeladen';
             loadGallery();
           })
-          .catch(err => {
-            console.error('Upload-Fehler:', err);
+          .catch(err=>{
+            console.error('Upload-Fehler:',err);
             status.textContent = '❌ Upload fehlgeschlagen';
           })
-          .finally(() => {
-            snapBtn.disabled = false;
-          });
+          .finally(()=>snapBtn.disabled=false);
         };
         reader.readAsDataURL(blob);
       }, 'image/jpeg', 0.8);
     };
 
-    // **Helper:** lokal formatiertes Datum YYYY-MM-DD
+    // Hilfs-Funktion: lokales Datum YYYY-MM-DD
     function getDateString(offsetDays) {
       const d = new Date();
       d.setDate(d.getDate() + offsetDays);
@@ -122,39 +167,50 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    // Lade heute & gestern
-    function loadGallery() {
+    // --- Galerie laden mit Überschriften und synchroner Reihenfolge ---
+    async function loadGallery() {
       gallery.innerHTML = '';
 
-      // Heute (0) und Gestern (-1)
-      const dates = [0, -1].map(off => getDateString(off));
+      // wir laden zuerst gestern (-1), dann heute (0)
+      const offsets = [-1, 0];
+      for (let off of offsets) {
+        const dateStr = getDateString(off);
+        const label   = off === 0 ? 'Heute' : 'Gestern';
+        // Überschrift für den Tag
+        const h3 = document.createElement('h3');
+        h3.textContent = label;
+        gallery.appendChild(h3);
 
-      dates.forEach(date => {
-        db.ref(`selfies/${date}`).orderByKey().once('value')
-          .then(snap => {
-            snap.forEach(child => {
-              const url = child.val();
-              const img = document.createElement('img');
-              img.src = url;
-              img.alt = `Selfie von ${date}`;
-              img.onclick = () => showLightbox(url);
-              gallery.prepend(img);
-            });
-          })
-          .catch(err => console.error(`Fehler beim Laden ${date}:`, err));
-      });
+        // Einträge auslesen
+        const snap = await db.ref(`selfies/${dateStr}`).once('value');
+        if (!snap.exists()) {
+          const info = document.createElement('p');
+          info.style.fontStyle = 'italic';
+          info.textContent = 'Keine Selfies an diesem Tag.';
+          gallery.appendChild(info);
+          continue;
+        }
+
+        snap.forEach(child => {
+          const url = child.val();
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = `Selfie von ${dateStr}`;
+          img.onclick = () => showLightbox(url);
+          gallery.appendChild(img);
+        });
+      }
     }
 
     function showLightbox(src) {
       document.getElementById('lightboxImage').src = src;
       document.getElementById('lightboxOverlay').style.display = 'flex';
     }
-
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
-    // beim Start
+    // initial laden
     loadGallery();
   </script>
 </body>
