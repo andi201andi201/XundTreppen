@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Treppenchallenge – Live-Ampel-Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #f0f2f5;
+      padding: 2rem;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    h1 {
+      background: #4caf50;
+      color: #fff;
+      margin:0;
+      padding:1rem 1.5rem;
+      font-size:1.5rem;
+    }
+    .header, .row {
+      display: grid;
+      grid-template-columns: 40px 2fr 1fr 1fr;
+      align-items: center;
+      padding: 0.75rem 1rem;
+    }
+    .header {
+      background: #c8e6c9;
+      font-weight:600;
+    }
+    .row {
+      border-bottom:1px solid #e0e0e0;
+      transition: background 0.2s, border-left 0.2s;
+    }
+    .row:hover {
+      background: #fafafa;
+    }
+    /* Traffic-Light SVG Container */
+    .traffic-light {
+      width: 16px;
+      height: 44px;
+    }
+    .traffic-light svg { display: block; }
+    /* SVG light defaults */
+    .light { fill: #222; opacity:0.2; }
+    /* aktive Lampen */
+    .green .light.green   { fill:#4caf50; opacity:1; }
+    .yellow .light.yellow { fill:#ffeb3b; opacity:1; }
+    .red .light.red       { fill:#f44336; opacity:1; }
+    /* Randfarbe je Status */
+    .green  { border-left:4px solid #4caf50; }
+    .yellow { border-left:4px solid #ffeb3b; }
+    .red    { border-left:4px solid #f44336; }
+    /* Highlight, wenn über 25 */
+    .highlight { font-weight:600; color:#c62828; }
+    /* Legende */
+    .legende {
+      padding:1rem;
+      background:#fafafa;
+      display:flex; flex-wrap:wrap; gap:1rem;
+      font-size:0.9rem;
+    }
+    .legende-item {
+      display:flex; align-items:center;
+    }
+    .legend-dot {
+      width:14px; height:14px; border-radius:50%;
+      margin-right:0.5rem; border:1px solid #999;
+    }
+    .legend-green  { background:#4caf50; }
+    .legend-yellow { background:#ffeb3b; }
+    .legend-red    { background:#f44336; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Treppenchallenge – Live-Ampel-Dashboard</h1>
+    <div class="header">
+      <div></div>
+      <div>Klasse</div>
+      <div>Punkte</div>
+      <div>Stockw./Person</div>
+    </div>
+    <div id="results"></div>
+    <div class="legende">
+      <div class="legende-item">
+        <span class="legend-dot legend-green"></span>0–15 realistisch
+      </div>
+      <div class="legende-item">
+        <span class="legend-dot legend-yellow"></span>16–25 sportlich
+      </div>
+      <div class="legende-item">
+        <span class="legend-dot legend-red"></span>>25 verdächtig
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper: lokales Datum YYYY-MM-DD
+    function getDateString() {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      return d.toISOString().split('T')[0];
+    }
+
+    // Firebase initialisieren
+    const firebaseConfig = {
+      apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
+      authDomain: "treppenchallenge2025.firebaseapp.com",
+      databaseURL: "https://treppenchallenge2025-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "treppenchallenge2025",
+      storageBucket: "treppenchallenge2025.appspot.com",
+      messagingSenderId: "45698338369",
+      appId: "1:45698338369:web:4aa2c212f2cbea0f0b00c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const PERSONEN = 20;
+    const heute = getDateString();
+    const container = document.getElementById("results");
+
+    // Live-Daten abrufen
+    db.ref(`/daily/${heute}`).on("value", snap => {
+      container.innerHTML = "";
+      const data = snap.val() || {};
+
+      Object.entries(data).forEach(([klasse, punkte]) => {
+        const avg = punkte / PERSONEN;
+        let status = "green";
+        if (avg > 25) status = "red";
+        else if (avg > 15) status = "yellow";
+
+        // Zeile erzeugen
+        const row = document.createElement("div");
+        row.className = `row ${status} ${avg>25?'highlight':''}`;
+
+        // Traffic-light SVG
+        const svg = `
+          <div class="traffic-light ${status}">
+            <svg viewBox="0 0 16 44" xmlns="http://www.w3.org/2000/svg">
+              <rect width="16" height="44" rx="4" fill="#444"/>
+              <circle cx="8" cy="8"  r="6" class="light red"/>
+              <circle cx="8" cy="22" r="6" class="light yellow"/>
+              <circle cx="8" cy="36" r="6" class="light green"/>
+            </svg>
+          </div>`;
+
+        row.innerHTML = `
+          <div>${svg}</div>
+          <div>${klasse}</div>
+          <div>${punkte}</div>
+          <div>${avg.toFixed(1)}</div>
+        `;
+        container.appendChild(row);
+      });
+
+      // Keine Daten
+      if (!Object.keys(data).length) {
+        container.innerHTML = `
+          <div class="row">
+            <div></div>
+            <div colspan="3" style="text-align:center; padding:1rem;">
+              Keine Daten gefunden.
+            </div>
+          </div>`;
+      }
+    });
+  </script>
+</body>
+</html>
