@@ -93,7 +93,7 @@
     <button id="snapBtn" disabled>Selfie machen</button>
     <div id="uploadStatus"></div>
 
-    <h2>Alle Selfies heute</h2>
+    <h2>Selfies von heute &amp; gestern</h2>
     <div id="selfieGallery"></div>
   </div>
 
@@ -183,17 +183,29 @@
 
     function loadGallery() {
       gallery.innerHTML = '';
-      const today = new Date().toISOString().slice(0,10);
-      db.ref(`selfies/${today}`).orderByKey().once('value')
-        .then(snap => {
-          snap.forEach(child => {
-            const url = child.val();
-            const img = document.createElement('img');
-            img.src = url;
-            img.onclick = () => showLightbox(url);
-            gallery.prepend(img);
-          });
-        });
+      
+      // heute & gestern im YYYY-MM-DD-Format
+      const heute   = new Date();
+      const gestern = new Date(Date.now() - 24*60*60*1000);
+      const dates   = [
+        heute.toISOString().slice(0,10),
+        gestern.toISOString().slice(0,10)
+      ];
+
+      dates.forEach(date => {
+        db.ref(`selfies/${date}`).orderByKey().once('value')
+          .then(snap => {
+            snap.forEach(child => {
+              const url = child.val();
+              const img = document.createElement('img');
+              img.src = url;
+              img.alt = `Selfie von ${date}`;
+              img.onclick = () => showLightbox(url);
+              gallery.prepend(img);
+            });
+          })
+          .catch(err => console.error(`Fehler beim Laden ${date}:`, err));
+      });
     }
 
     function showLightbox(src) {
