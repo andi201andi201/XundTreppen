@@ -21,10 +21,25 @@
       color:#558b2f;
       text-decoration:none;
       display:inline-block;
-      margin-bottom:1em;
+      margin-bottom:0.5em;
       font-size:1.1em;
     }
     a.back:hover { text-decoration:underline; }
+    label {
+      display:block;
+      margin-top:1em;
+      font-weight:600;
+      color:#33691e;
+    }
+    select {
+      margin:0.5em 0 1em;
+      padding:0.5em;
+      font-size:1em;
+      border:2px solid #558b2f;
+      border-radius:4px;
+      width:60%;
+      max-width:300px;
+    }
     video {
       border:2px solid #558b2f;
       border-radius:4px;
@@ -44,6 +59,7 @@
       cursor:pointer;
       font-size:1em;
       margin-top:0.5em;
+      position: relative;
     }
     button:disabled {
       background:#ccc;
@@ -74,11 +90,12 @@
     }
   </style>
 
-  <!-- Quiz/Selfie/Back-Link Redirect -->
   <script>
     function setupRedirects() {
       const stock = new URLSearchParams(location.search).get('stock') || '';
-      document.getElementById('backLink').href   = stock ? `index.html?stock=${stock}`   : 'index.html';
+      document.getElementById('backLink').href = stock
+        ? `index.html?stock=${stock}`
+        : 'index.html';
     }
     window.addEventListener('DOMContentLoaded', setupRedirects);
   </script>
@@ -88,16 +105,40 @@
     <h1>Selfie-Station</h1>
     <a id="backLink" class="back">« Zurück zur Challenge</a>
 
-    <!-- Video-Vorschau -->
-    <video id="video" autoplay muted playsinline webkit-playsinline></video>
+    <!-- Klassenauswahl unterhalb des Back-Links -->
+    <label for="klasseSelect">Wähle deine Klasse:</label>
+    <select id="klasseSelect">
+      <option value="">-- Bitte wählen --</option>
+      <option>22HD_23HZ_1</option>
+      <option>22HD_23HZ_2</option>
+      <option>22HD_23HZ_3</option>
+      <option>22HD_23HZ_4</option>
+      <option>22HD_23HZ_5</option>
+      <option>22HD_23HZ_6</option>
+      <option>23HD_1</option>
+      <option>23HD_2</option>
+      <option>24FZ_1</option>
+      <option>24FZ_2</option>
+      <option>24HD_1</option>
+      <option>24HD_2</option>
+      <option>24HZ_1</option>
+      <option>24HZ_2</option>
+      <option>24HZ_3</option>
+      <option>24HZ_4</option>
+      <option>24HZ_5</option>
+      <option>24HZ_6</option>
+      <option>25FZ_2</option>
+      <option>25FZ_3</option>
+    </select>
+
+    <video id="video" autoplay muted playsinline></video>
     <button id="snapBtn" disabled>Selfie machen</button>
     <div id="uploadStatus"></div>
 
-    <h2>Alle Selfies</h2>
+    <h2>Alle Selfies heute</h2>
     <div id="selfieGallery"></div>
   </div>
 
-  <!-- Lightbox Overlay -->
   <div id="lightboxOverlay" onclick="hideLightbox()">
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
@@ -117,12 +158,13 @@
     });
     const db = firebase.database();
 
-    const video   = document.getElementById('video');
-    const snapBtn = document.getElementById('snapBtn');
-    const status  = document.getElementById('uploadStatus');
-    const gallery = document.getElementById('selfieGallery');
+    const video       = document.getElementById('video');
+    const snapBtn     = document.getElementById('snapBtn');
+    const status      = document.getElementById('uploadStatus');
+    const gallery     = document.getElementById('selfieGallery');
+    const klasseSelect= document.getElementById('klasseSelect');
 
-    // Kamerazugriff
+    // Kamera starten
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
@@ -137,6 +179,11 @@
       });
 
     snapBtn.onclick = () => {
+      const klasse = klasseSelect.value;
+      if (!klasse) {
+        status.textContent = '⚠️ Bitte zuerst Deine Klasse auswählen!';
+        return;
+      }
       snapBtn.disabled = true;
       status.textContent = '⏳ Selfie wird aufgenommen…';
 
@@ -161,13 +208,27 @@
           .then(res => res.json())
           .then(json => {
             if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
-            const url = json.data.link;
-            const today = new Date().toISOString().slice(0,10);
-            return db.ref(`selfies/${today}`).push(url);
+            return json.data.link;
           })
-          .then(() => {
-            status.textContent = '✅ Hochgeladen';
-            loadGallery();
+          .then(async url => {
+            const today = new Date().toISOString().slice(0,10);
+
+            // 1) Selfie speichern (unabhängig von Klasse)
+            await db.ref(`selfies/${today}`).push(url);
+
+            // 2) Punkte einmalig pro Tag & Gerät vergeben
+            const key = `selfiePoints_${today}_${klasse}`;
+            if (!localStorage.getItem(key)) {
+              // Erstes Selfie heute → +5 Punkte
+              await db.ref(`daily/${today}/${klasse}`)
+                      .transaction(v => (v||0) + 5);
+              await db.ref(`punkte/${klasse}`)
+                      .transaction(v => (v||0) + 5);
+              localStorage.setItem(key, '1');
+              status.textContent = '✅ Hochgeladen – 🎉 +5 Punkte fürs erste Selfie';
+            } else {
+              status.textContent = '✅ Hochgeladen – ℹ️ Selfie-Punkte heute schon erhalten';
+            }
           })
           .catch(err => {
             console.error('Upload-Fehler:', err);
@@ -175,6 +236,7 @@
           })
           .finally(() => {
             snapBtn.disabled = false;
+            loadGallery();
           });
         };
         reader.readAsDataURL(blob);
@@ -187,10 +249,9 @@
       db.ref(`selfies/${today}`).orderByKey().once('value')
         .then(snap => {
           snap.forEach(child => {
-            const url = child.val();
             const img = document.createElement('img');
-            img.src = url;
-            img.onclick = () => showLightbox(url);
+            img.src = child.val();
+            img.onclick = () => showLightbox(child.val());
             gallery.prepend(img);
           });
         });
@@ -200,12 +261,11 @@
       document.getElementById('lightboxImage').src = src;
       document.getElementById('lightboxOverlay').style.display = 'flex';
     }
-
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
 
-    // Erstes Laden der Galerie
+    // Galerie beim Laden initialisieren
     loadGallery();
   </script>
 </body>
