@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -48,6 +49,7 @@
 /* -------- Selfie-Station Header -------- */
 .main-header {
   display: flex;
+flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: .5em 1em;
@@ -95,7 +97,39 @@
   transform: translate(-50%,-50%) scale(15);
   opacity: 0;
 }
-
+.selfie-notice {
+  flex-basis: 100%;        /* neu: volle Zeilenbreite */
+  margin-top: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5em;
+  font-size: 0.9rem;
+  color: #555;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.selfie-notice:hover {
+  opacity: 1;
+}
+.selfie-notice .arrow {
+  margin-right: 0.3em;
+  animation: arrow-bounce 1s ease-in-out infinite;
+  font-size: 1.1rem;
+}
+@keyframes arrow-bounce {
+  0%, 100%   { transform: translateY(0); }
+  50%        { transform: translateY(-3px); }
+}
+/* Mobile-Anpassung */
+@media (max-width: 480px) {
+  .selfie-notice {
+    font-size: 0.8rem;
+  }
+}
+  .selfie-notice .arrow {
+    font-size: 1rem;
+  }
 /* Pulsierendes Kamera-Icon */
 .camera-icon {
   font-size: 1.3em;
@@ -335,6 +369,23 @@
       color: #333;
       border-bottom-color: #333;
     }
+.selfie-wrapper {
+  display: inline-flex;
+  flex-direction: column;   /* Stapelt Button über Notice */
+  align-items: center;      /* zentriert beide in sich – passt zum Button */
+  margin-left: 1em;         /* optional: Abstand zum Logo oder Nachbarelement */
+}
+
+/* Die Notice rutscht jetzt direkt unter den Button */
+.selfie-notice {
+  margin-top: 0.3em;
+  font-size: 0.9rem;
+  color: #555;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+}
   </style>
 
   <!--
@@ -385,11 +436,17 @@ window.addEventListener('DOMContentLoaded', () => {
 <header class="main-header">
   <img src="https://i.postimg.cc/2qZmLMft/Xund-Treppen-logo.png"
        alt="Logo" class="logo">
+ <div class="selfie-wrapper">
   <button id="selfieLink" class="selfie-btn"
           onclick="location.href='selfie.html'+window.location.search">
     <span class="camera-icon">📸</span>
     Selfie-Station
   </button>
+  <div class="selfie-notice">
+    <span class="arrow">⬆️</span>
+    Selfie des Tages: +5 Punkte
+  </div>
+</div>
 </header>
 
   <h1>Treppen-Challenge</h1>
