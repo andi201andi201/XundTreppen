@@ -25,6 +25,26 @@
   </script>
 
   <style>
+.cheat-banner {
+  max-width: 400px;             /* Banner-Breite */
+  margin: 1.5em auto;           /* zentriert und Abstand vertikal */
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  text-align: center;
+  padding: 0.8em 1em;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.cheat-banner a {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.cheat-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
 /* -------- Selfie-Station Header -------- */
 .main-header {
   display: flex;
@@ -300,6 +320,21 @@
       50%  { opacity:1; }
       100% { transform: translateY(-120vh) scale(1.5); opacity:0; }
     }
+ .cheat-link-container {
+      text-align: center;
+      margin: 2em 0 1em;
+    }
+    .cheat-link {
+      font-size: 0.85em;
+      color: #555;
+      text-decoration: none;
+      border-bottom: 1px dotted #aaa;
+      padding-bottom: 2px;
+    }
+    .cheat-link:hover {
+      color: #333;
+      border-bottom-color: #333;
+    }
   </style>
 
   <!--
@@ -401,7 +436,12 @@ window.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <div id="statistik"></div>
-
+<div class="cheat-banner">
+  <a href="Schummeldetector.html"
+     onclick="location.href='Schummeldetector.html'+window.location.search">
+    🚦 Schummel-Detektor öffnen
+  </a>
+</div>
   <div id="admin">
     <h3>🔐 Adminbereich</h3>
     <input type="password" id="adminpass" placeholder="Passwort">
@@ -633,7 +673,6 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('statistik').textContent =
         `🚶‍♂️ ${total} Stockwerke → ${schritte} Schritte | 🔥 ${kcal} kcal | 🗻 ${hm} Höhenmeter`;
     }
-
     // Konfetti
     function confetti(){
       const cols=['#f44336','#ffeb3b','#4caf50','#2196f3','#9c27b0','#ff9800','#03a9f4','#8bc34a'];
