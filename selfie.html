@@ -7,128 +7,106 @@
   <style>
     body { font-family: 'Segoe UI', sans-serif; background: #f0f4c3; margin:0; padding:0; }
     .container {
-      max-width:700px;
-      margin:2em auto;
-      background:#fff;
-      border:3px solid #558b2f;
-      border-radius:8px;
-      padding:1em;
+      max-width:700px; margin:2em auto;
+      background:#fff; border:3px solid #558b2f;
+      border-radius:8px; padding:1em;
       box-shadow:0 0 10px rgba(0,0,0,0.1);
       text-align:center;
     }
-    h1 { color:#558b2f; margin-bottom:0.5em; }
-    a.back {
-      color:#558b2f;
-      text-decoration:none;
-      display:inline-block;
-      margin-bottom:0.5em;
-      font-size:1.1em;
+    h1 { color:#558b2f; margin-bottom:0.2em; }
+    .subtitle {
+      font-size:0.9rem; color:#b71c1c;
+      margin:0.2em 0 1em; font-style:italic;
     }
+    a.back { color:#558b2f; text-decoration:none; display:inline-block; margin-bottom:0.5em; font-size:1.1em; }
     a.back:hover { text-decoration:underline; }
-    label {
-      display:block;
-      margin-top:1em;
-      font-weight:600;
-      color:#33691e;
-    }
+    label { display:block; margin-top:1em; font-weight:600; color:#33691e; }
     select {
-      margin:0.5em 0 1em;
-      padding:0.5em;
-      font-size:1em;
-      border:2px solid #558b2f;
-      border-radius:4px;
-      width:60%;
-      max-width:300px;
+      margin:0.5em 0 1em; padding:0.5em;
+      font-size:1em; border:2px solid #558b2f;
+      border-radius:4px; width:60%; max-width:300px;
     }
     video {
-      border:2px solid #558b2f;
-      border-radius:4px;
-      margin:1em auto;
-      display:block;
-      object-fit:cover;
-      width:100%;
-      max-width:280px;
-      height:auto;
+      border:2px solid #558b2f; border-radius:4px;
+      margin:1em auto; display:block; object-fit:cover;
+      width:100%; max-width:280px; height:auto;
     }
     button {
-      background:#558b2f;
-      color:#fff;
-      border:none;
-      padding:.5em 1em;
-      border-radius:4px;
-      cursor:pointer;
-      font-size:1em;
-      margin-top:0.5em;
+      background:#558b2f; color:#fff; border:none;
+      padding:.5em 1em; border-radius:4px;
+      cursor:pointer; font-size:1em; margin-top:0.5em;
       position: relative;
     }
-    button:disabled {
-      background:#ccc;
-      cursor:not-allowed;
-    }
+    button:disabled { background:#ccc; cursor:not-allowed; }
     button:hover:not(:disabled) { background:#33691e; }
     #uploadStatus { margin-top:.5em; font-weight:bold; }
-    #selfieGallery img {
-      width:100px;
-      margin:.5em;
-      border:2px solid #00796b;
-      border-radius:4px;
-      cursor:pointer;
+    .entry img {
+      width:100px; margin:.5em;
+      border:2px solid #00796b; border-radius:4px;
+      cursor:pointer; display:block; margin:0 auto;
+    }
+    .entry { display:inline-block; text-align:center; margin:0.5em; }
+    .entry .klasse-label {
+      font-size:0.8rem; color:#555; margin-top:0.2em;
     }
     #lightboxOverlay {
-      display:none;
-      position:fixed; top:0; left:0;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.8);
-      justify-content:center; align-items:center;
-      z-index:2000;
+      display:none; position:fixed; top:0; left:0;
+      width:100%; height:100%; background:rgba(0,0,0,0.8);
+      justify-content:center; align-items:center; z-index:2000;
     }
     #lightboxOverlay img {
-      max-width:90%;
-      max-height:90%;
-      border:4px solid #fff;
-      border-radius:4px;
+      max-width:90%; max-height:90%;
+      border:4px solid #fff; border-radius:4px;
     }
   </style>
-
   <script>
-    function setupRedirects() {
-      const stock = new URLSearchParams(location.search).get('stock') || '';
+    async function setup() {
+      // Zurück-Link
+      const stock = new URLSearchParams(location.search).get('stock')||'';
       document.getElementById('backLink').href = stock
         ? `index.html?stock=${stock}`
         : 'index.html';
+      // Klassenliste
+      const klassen = [
+        "22HD_23HZ_1","22HD_23HZ_2","22HD_23HZ_3","22HD_23HZ_4",
+        "22HD_23HZ_5","22HD_23HZ_6","23HD_1","23HD_2","24FZ_1",
+        "24FZ_2","24HD_1","24HD_2","24HZ_1","24HZ_2","24HZ_3",
+        "24HZ_4","24HZ_5","24HZ_6","25FZ_2","25FZ_3",
+        "Dozierendenteam"
+      ];
+      let sel = document.getElementById('klasseSelect');
+      klassen.forEach(k=>{
+        let o = document.createElement('option');
+        o.value = k;
+        o.textContent = (k==="Dozierendenteam" ? "👩‍🏫 " : "") + k;
+        sel.append(o);
+      });
+      // Kamera
+      const vid = document.getElementById('video');
+      try {
+        let stream = await navigator.mediaDevices.getUserMedia({ video:true });
+        vid.srcObject = stream;
+        vid.onloadedmetadata = ()=>{ vid.play(); document.getElementById('snapBtn').disabled = false; };
+      } catch {
+        document.getElementById('uploadStatus').textContent = '🚫 Kamera nicht verfügbar';
+      }
+      // Galerie initial laden
+      loadGallery();
     }
-    window.addEventListener('DOMContentLoaded', setupRedirects);
+    window.addEventListener('DOMContentLoaded', setup);
   </script>
 </head>
 <body>
   <div class="container">
     <h1>Selfie-Station</h1>
+    <p class="subtitle">
+      Selfies ohne erkennbares Gesicht werden gelöscht und Punkte wieder abgezogen
+    </p>
     <a id="backLink" class="back">« Zurück zur Challenge</a>
 
-    <!-- Klassenauswahl unterhalb des Back-Links -->
     <label for="klasseSelect">Wähle deine Klasse:</label>
     <select id="klasseSelect">
       <option value="">-- Bitte wählen --</option>
-      <option>22HD_23HZ_1</option>
-      <option>22HD_23HZ_2</option>
-      <option>22HD_23HZ_3</option>
-      <option>22HD_23HZ_4</option>
-      <option>22HD_23HZ_5</option>
-      <option>22HD_23HZ_6</option>
-      <option>23HD_1</option>
-      <option>23HD_2</option>
-      <option>24FZ_1</option>
-      <option>24FZ_2</option>
-      <option>24HD_1</option>
-      <option>24HD_2</option>
-      <option>24HZ_1</option>
-      <option>24HZ_2</option>
-      <option>24HZ_3</option>
-      <option>24HZ_4</option>
-      <option>24HZ_5</option>
-      <option>24HZ_6</option>
-      <option>25FZ_2</option>
-      <option>25FZ_3</option>
     </select>
 
     <video id="video" autoplay muted playsinline></video>
@@ -143,10 +121,11 @@
     <img id="lightboxImage" src="" alt="Selfie Großansicht">
   </div>
 
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
-    // Firebase initialisieren
+    // Firebase init
     firebase.initializeApp({
       apiKey: "AIzaSyByvnMNMF8zoC5zCCats1Ppyh1-X1nt8Bq4",
       authDomain: "treppenchallenge2025.firebaseapp.com",
@@ -158,103 +137,91 @@
     });
     const db = firebase.database();
 
-    const video       = document.getElementById('video');
-    const snapBtn     = document.getElementById('snapBtn');
-    const status      = document.getElementById('uploadStatus');
-    const gallery     = document.getElementById('selfieGallery');
-    const klasseSelect= document.getElementById('klasseSelect');
-
-    // Kamera starten
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-        video.onloadedmetadata = () => {
-          video.play();
-          snapBtn.disabled = false;
-        };
-      })
-      .catch(err => {
-        console.error('Kamera-Fehler:', err);
-        status.textContent = '🚫 Kamera nicht verfügbar';
-      });
-
-    snapBtn.onclick = () => {
-      const klasse = klasseSelect.value;
+    document.getElementById('snapBtn').onclick = async () => {
+      const status = document.getElementById('uploadStatus');
+      const klasse = document.getElementById('klasseSelect').value;
       if (!klasse) {
         status.textContent = '⚠️ Bitte zuerst Deine Klasse auswählen!';
         return;
       }
-      snapBtn.disabled = true;
       status.textContent = '⏳ Selfie wird aufgenommen…';
+      document.getElementById('snapBtn').disabled = true;
 
+      // Foto vom Video
+      const vid = document.getElementById('video');
       const canvas = document.createElement('canvas');
-      canvas.width  = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
+      canvas.width = vid.videoWidth;
+      canvas.height= vid.videoHeight;
+      canvas.getContext('2d').drawImage(vid,0,0);
 
-      canvas.toBlob(blob => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result.split(',')[1];
-          status.textContent = '⏳ Upload zu Imgur…';
-          fetch('https://api.imgur.com/3/image', {
-            method: 'POST',
-            headers: {
-              Authorization: 'Client-ID dfebab139250adf',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image: base64, type: 'base64' })
-          })
-          .then(res => res.json())
-          .then(json => {
-            if (!json.success) throw new Error('Imgur-Upload fehlgeschlagen');
-            return json.data.link;
-          })
-          .then(async url => {
-            const today = new Date().toISOString().slice(0,10);
+      // in Base64
+      const dataUrl = canvas.toDataURL('image/jpeg',0.8);
+      const base64  = dataUrl.split(',')[1];
 
-            // 1) Selfie speichern (unabhängig von Klasse)
-            await db.ref(`selfies/${today}`).push(url);
+      try {
+        status.textContent = '⏳ Upload zu Imgur…';
+        const res = await fetch('https://api.imgur.com/3/image',{
+          method:'POST',
+          headers:{
+            Authorization:'Client-ID dfebab139250adf',
+            'Content-Type':'application/json'
+          },
+          body: JSON.stringify({ image: base64, type:'base64' })
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error();
+        const url = json.data.link;
 
-            // 2) Punkte einmalig pro Tag & Gerät vergeben
-            const key = `selfiePoints_${today}_${klasse}`;
-            if (!localStorage.getItem(key)) {
-              // Erstes Selfie heute → +5 Punkte
-              await db.ref(`daily/${today}/${klasse}`)
-                      .transaction(v => (v||0) + 5);
-              await db.ref(`punkte/${klasse}`)
-                      .transaction(v => (v||0) + 5);
-              localStorage.setItem(key, '1');
-              status.textContent = '✅ Hochgeladen – 🎉 +5 Punkte fürs erste Selfie';
-            } else {
-              status.textContent = '✅ Hochgeladen – ℹ️ Selfie-Punkte heute schon erhalten';
-            }
-          })
-          .catch(err => {
-            console.error('Upload-Fehler:', err);
-            status.textContent = '❌ Upload fehlgeschlagen';
-          })
-          .finally(() => {
-            snapBtn.disabled = false;
-            loadGallery();
-          });
-        };
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg', 0.8);
+        // in Echtzeit-DB speichern
+        const today = new Date().toISOString().slice(0,10);
+        await db.ref(`selfies/${today}`).push({ url, klasse });
+
+        // Punkte einmalig pro Tag/Gerät
+        const key = `selfiePoints_${today}_${klasse}`;
+        if (!localStorage.getItem(key)) {
+          await db.ref(`daily/${today}/${klasse}`)
+                  .transaction(v => (v||0) + 5);
+          await db.ref(`punkte/${klasse}`)
+                  .transaction(v => (v||0) + 5);
+          localStorage.setItem(key,'1');
+          status.textContent = '✅ +5 Punkte fürs erste Selfie';
+        } else {
+          status.textContent = '✅ Hochgeladen – Punkte heute schon erhalten';
+        }
+
+      } catch {
+        status.textContent = '❌ Upload fehlgeschlagen';
+      } finally {
+        document.getElementById('snapBtn').disabled = false;
+        loadGallery();
+      }
     };
 
-    function loadGallery() {
+    async function loadGallery() {
+      const gallery = document.getElementById('selfieGallery');
       gallery.innerHTML = '';
       const today = new Date().toISOString().slice(0,10);
-      db.ref(`selfies/${today}`).orderByKey().once('value')
-        .then(snap => {
-          snap.forEach(child => {
-            const img = document.createElement('img');
-            img.src = child.val();
-            img.onclick = () => showLightbox(child.val());
-            gallery.prepend(img);
-          });
-        });
+      const snap  = await db.ref(`selfies/${today}`).orderByKey().once('value');
+
+      snap.forEach(child => {
+        const val = child.val();
+        const url   = typeof val === 'string' ? val : val.url;
+        const klasse= typeof val === 'string' ? '–' : val.klasse;
+
+        const entry = document.createElement('div');
+        entry.className = 'entry';
+
+        const img = document.createElement('img');
+        img.src     = url;
+        img.onclick = () => showLightbox(url);
+
+        const label = document.createElement('div');
+        label.className   = 'klasse-label';
+        label.textContent = klasse;
+
+        entry.append(img,label);
+        gallery.prepend(entry);
+      });
     }
 
     function showLightbox(src) {
@@ -264,9 +231,6 @@
     function hideLightbox() {
       document.getElementById('lightboxOverlay').style.display = 'none';
     }
-
-    // Galerie beim Laden initialisieren
-    loadGallery();
   </script>
 </body>
 </html>
